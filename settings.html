@@ -13,6 +13,9 @@
   .field{margin-bottom:14px;} label{display:block;font-size:13.5px;color:#4b5563;margin-bottom:6px;}
   input{width:100%;padding:11px 12px;border:1px solid #d1d5db;border-radius:10px;font-size:15px;font-family:inherit;}
   input:focus{outline:none;border-color:#2f9e63;box-shadow:0 0 0 3px rgba(47,158,99,.12);}
+  .pwdwrap{position:relative;}
+  .pwdwrap input{padding-right:46px;}
+  .eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:none;background:none;font-size:19px;cursor:pointer;color:#6b7280;padding:8px;line-height:1;}
   .row{display:flex;gap:10px;} .row .field{flex:1;}
   button.btn{width:100%;padding:12px;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;background:#2f9e63;color:#fff;}
   button.btn.secondary{background:#eef1f6;color:#1f2430;}
@@ -42,8 +45,11 @@
       <div class="field"><label>令牌到期日</label><input id="expiresAt" type="date"></div>
     </div>
     <div class="field">
-      <label>Fine-grained token（github_pat_ 开头）</label>
-      <input id="token" type="password" placeholder="github_pat_..." autocomplete="off">
+      <label>Fine-grained token（github_pat_ 开头） <span style="color:#9aa1ad;font-weight:400">· 点击 👁 可隐藏</span></label>
+      <div class="pwdwrap">
+        <input id="token" type="text" placeholder="github_pat_..." autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="text">
+        <button type="button" class="eye" id="tokenEye" title="显示 / 隐藏">👁</button>
+      </div>
     </div>
     <button class="btn secondary" id="btnTest" style="margin-bottom:10px">测试连接</button>
     <button class="btn" id="btnSave">保存</button>
@@ -80,6 +86,11 @@
       };
     }
 
+    $('tokenEye').addEventListener('click', function(){
+      var inp = $('token'); var isPw = inp.type === 'password';
+      inp.type = isPw ? 'text' : 'password';
+      $('tokenEye').textContent = isPw ? '👁' : '🙈';
+    });
     $('btnTest').addEventListener('click', function(){
       var f = readForm();
       if(!f.owner || !f.repo || !f.token){ showStatus(false, '请先填写用户名、仓库名和 token'); return; }
