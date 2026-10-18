@@ -7,8 +7,31 @@
 <style>
   :root{
     --bg:#f4f5f7; --card:#ffffff; --text:#1f2430; --sub:#6b7280;
+    --muted2:#9aa1ad; --gear-bg:#ffffff;
+    --sb-none-bg:#eef1f6; --sb-none-fg:#6b7280;
+    --sb-ok-bg:#e7f6ee; --sb-ok-fg:#176b3a;
+    --sb-warn-bg:#fff7e6; --sb-warn-fg:#8a6100;
+    --sb-exp-bg:#fdecec; --sb-exp-fg:#b42318;
+    --tag-bg:#e7f6ee; --tag-fg:#2f9e63;
+    --tag-soon-bg:#eef1f6; --tag-soon-fg:#6b7280;
+    --shadow:0 1px 2px rgba(16,24,40,.06),0 4px 16px rgba(16,24,40,.05);
+    --shadow-hover:0 6px 24px rgba(16,24,40,.12);
     --green:#2f9e63; --blue:#3b82f6; --amber:#f59e0b; --violet:#8b5cf6; --rose:#ef4444; --teal:#0d9488;
     --radius:18px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#111418; --card:#1b2026; --text:#e7eaee; --sub:#98a1ab;
+      --muted2:#7d8790; --gear-bg:#1b2026;
+      --sb-none-bg:#242a32; --sb-none-fg:#98a1ab;
+      --sb-ok-bg:#14301f; --sb-ok-fg:#5dd68c;
+      --sb-warn-bg:#332a12; --sb-warn-fg:#e8c66a;
+      --sb-exp-bg:#3a1b1b; --sb-exp-fg:#ff8a8a;
+      --tag-bg:#14301f; --tag-fg:#5dd68c;
+      --tag-soon-bg:#242a32; --tag-soon-fg:#98a1ab;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.35);
+      --shadow-hover:0 6px 24px rgba(0,0,0,.5);
+    }
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   body{margin:0; background:var(--bg); color:var(--text);
@@ -17,29 +40,29 @@
   header{padding:8px 0 16px; display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap;}
   header .t h1{margin:0; font-size:28px; letter-spacing:.5px;}
   header .t p{margin:6px 0 0; color:var(--sub); font-size:15px;}
-  a.gear{flex:none; color:var(--sub); text-decoration:none; font-size:22px; padding:8px; border-radius:12px; background:#fff; box-shadow:0 1px 2px rgba(16,24,40,.06);}
+  a.gear{flex:none; color:var(--sub); text-decoration:none; font-size:22px; padding:8px; border-radius:12px; background:var(--gear-bg); box-shadow:var(--shadow);}
   a.gear:hover{color:var(--text);}
   #syncBar{margin:0 0 18px; padding:12px 16px; border-radius:14px; font-size:13.5px; line-height:1.6;
            display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;}
   #syncBar .txt{display:flex; align-items:center; gap:8px;}
   #syncBar a{color:inherit; font-weight:600; text-decoration:none; white-space:nowrap;}
-  .sb-none{background:#eef1f6; color:#6b7280;}
-  .sb-ok{background:#e7f6ee; color:#176b3a;}
-  .sb-warn{background:#fff7e6; color:#8a6100;}
-  .sb-exp{background:#fdecec; color:#b42318;}
+  .sb-none{background:var(--sb-none-bg); color:var(--sb-none-fg);}
+  .sb-ok{background:var(--sb-ok-bg); color:var(--sb-ok-fg);}
+  .sb-warn{background:var(--sb-warn-bg); color:var(--sb-warn-fg);}
+  .sb-exp{background:var(--sb-exp-bg); color:var(--sb-exp-fg);}
   .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px;}
   .card{display:block; background:var(--card); border-radius:var(--radius); padding:22px 20px;
-        text-decoration:none; color:inherit; box-shadow:0 1px 2px rgba(16,24,40,.06),0 4px 16px rgba(16,24,40,.05);
+        text-decoration:none; color:inherit; box-shadow:var(--shadow);
         transition:transform .12s ease, box-shadow .12s ease; position:relative; overflow:hidden;}
-  .card:hover{transform:translateY(-3px); box-shadow:0 6px 24px rgba(16,24,40,.12);}
+  .card:hover{transform:translateY(-3px); box-shadow:var(--shadow-hover);}
   .card .ic{width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center;
             font-size:24px; margin-bottom:14px; color:#fff;}
   .card h2{margin:0 0 6px; font-size:19px;}
   .card .desc{margin:0; color:var(--sub); font-size:13.5px; line-height:1.5;}
   .tag{position:absolute; top:16px; right:16px; font-size:11px; padding:3px 9px; border-radius:999px;
-       background:#e7f6ee; color:var(--green); font-weight:600;}
-  .tag.soon{background:#eef1f6; color:var(--sub);}
-  footer{margin-top:34px; color:#9aa1ad; font-size:12.5px; text-align:center; line-height:1.7;}
+       background:var(--tag-bg); color:var(--tag-fg); font-weight:600;}
+  .tag.soon{background:var(--tag-soon-bg); color:var(--tag-soon-fg);}
+  footer{margin-top:34px; color:var(--muted2); font-size:12.5px; text-align:center; line-height:1.7;}
   .c-green{background:var(--green);} .c-blue{background:var(--blue);} .c-amber{background:var(--amber);}
   .c-violet{background:var(--violet);} .c-rose{background:var(--rose);} .c-teal{background:var(--teal);}
 </style>
