@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>同步设置 · 个人集成包</title>
+<style>
+  *{box-sizing:border-box;} body{margin:0;background:#f4f5f7;color:#1f2430;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}
+  .wrap{max-width:560px;margin:0 auto;padding:28px 20px 60px;}
+  a.back{color:#3b82f6;text-decoration:none;font-size:14px;}
+  h1{margin:16px 0 4px;font-size:24px;} .sub{color:#6b7280;font-size:14px;margin:0 0 20px;line-height:1.6;}
+  .card{background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 1px 2px rgba(16,24,40,.06),0 4px 16px rgba(16,24,40,.05);}
+  .field{margin-bottom:14px;} label{display:block;font-size:13.5px;color:#4b5563;margin-bottom:6px;}
+  input{width:100%;padding:11px 12px;border:1px solid #d1d5db;border-radius:10px;font-size:15px;font-family:inherit;}
+  input:focus{outline:none;border-color:#2f9e63;box-shadow:0 0 0 3px rgba(47,158,99,.12);}
+  .row{display:flex;gap:10px;} .row .field{flex:1;}
+  button.btn{width:100%;padding:12px;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;background:#2f9e63;color:#fff;}
+  button.btn.secondary{background:#eef1f6;color:#1f2430;}
+  button.btn:active{opacity:.85;}
+  .status{margin-top:14px;padding:12px;border-radius:10px;font-size:14px;line-height:1.6;display:none;}
+  .status.ok{display:block;background:#e7f6ee;color:#176b3a;}
+  .status.err{display:block;background:#fdecec;color:#b42318;}
+  .note{font-size:12.5px;color:#9aa1ad;line-height:1.7;margin-top:4px;}
+  .warn{background:#fff7e6;border:1px solid #f0d9a8;color:#8a6100;padding:12px;border-radius:10px;font-size:13px;line-height:1.7;margin-bottom:16px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← 返回首页</a>
+  <h1>同步设置</h1>
+  <p class="sub">把加密后的数据自动同步到你的 GitHub 私有仓库，手机、电脑数据一致。</p>
+
+  <div class="warn">🔐 <b>token 只保存在你当前浏览器的本地存储里</b>，绝不上传到本项目之外的任何地方。数据本身仍由你的主密码端到端加密，即使仓库被看到也只是密文。</div>
+
+  <div class="card">
+    <div class="field">
+      <label>GitHub 用户名（owner）</label>
+      <input id="owner" placeholder="例如 zhangsan" autocomplete="off">
+    </div>
+    <div class="row">
+      <div class="field"><label>仓库名（repo）</label><input id="repo" value="lifehub-data" autocomplete="off"></div>
+      <div class="field"><label>令牌到期日</label><input id="expiresAt" type="date"></div>
+    </div>
+    <div class="field">
+      <label>Fine-grained token（github_pat_ 开头）</label>
+      <input id="token" type="password" placeholder="github_pat_..." autocomplete="off">
+    </div>
+    <button class="btn secondary" id="btnTest" style="margin-bottom:10px">测试连接</button>
+    <button class="btn" id="btnSave">保存</button>
+    <div class="status" id="status"></div>
+    <p class="note">提示：token 到期日用于首页提醒（到期前 5 天会提前提醒你重新生成）。若你选了“No expiration”，到期日可留空。</p>
+  </div>
+</div>
+
+<script src="sync.js"></script>
+<script>
+  (function(){
+    'use strict';
+    var $ = function(id){ return document.getElementById(id); };
+    var statusEl = $('status');
+
+    function showStatus(ok, msg){ statusEl.className = 'status ' + (ok ? 'ok' : 'err'); statusEl.textContent = msg; }
+
+    // 回填已保存配置
+    var cfg = window.LifeHubSync.getConfig();
+    if(cfg){
+      $('owner').value = cfg.owner || '';
+      $('repo').value = cfg.repo || '';
+      $('expiresAt').value = cfg.expiresAt || '';
+      // token 不回填明文，留空表示“保持不变”
+      $('token').placeholder = '已保存（留空则保持不变）';
+    }
+
+    function readForm(){
+      return {
+        owner: $('owner').value.trim(),
+        repo: $('repo').value.trim(),
+        expiresAt: $('expiresAt').value,
+        token: $('token').value.trim()
+      };
+    }
+
+    $('btnTest').addEventListener('click', function(){
+      var f = readForm();
+      if(!f.owner || !f.repo || !f.token){ showStatus(false, '请先填写用户名、仓库名和 token'); return; }
+      showStatus(true, '正在测试连接…');
+      window.LifeHubSync.testConnection(f.owner, f.repo, f.token).then(function(r){
+        showStatus(true, '✅ 连接成功：' + r.full_name + (r.private ? '（私有仓库）' : '（公开仓库）') + '，token 权限正常。');
+      }).catch(function(e){
+        var hint = '';
+        if(e.status === 401) hint = '（token 无效或已失效）';
+        else if(e.status === 404) hint = '（仓库不存在，或 token 没有该仓库权限）';
+        else if(e.status === 403) hint = '（权限不足，请确认 Contents 设为 Read and write）';
+        showStatus(false, '❌ 连接失败：' + e.message + hint);
+      });
+    });
+
+    $('btnSave').addEventListener('click', function(){
+      var f = readForm();
+      if(!f.owner || !f.repo){ showStatus(false, '请填写 GitHub 用户名和仓库名'); return; }
+      var prev = window.LifeHubSync.getConfig() || {};
+      var token = f.token || prev.token;
+      if(!token){ showStatus(false, '请填写 token'); return; }
+      window.LifeHubSync.setConfig({ owner:f.owner, repo:f.repo, expiresAt:f.expiresAt, token:token });
+      showStatus(true, '✅ 已保存。返回首页即可看到同步状态。');
+    });
+  })();
+</script>
+</body>
+</html>
