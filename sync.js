@@ -97,19 +97,10 @@
   }
 
   // —— 记账模块专用 ——
-  // 若云端比本地新，则不覆盖、返回 'remote-newer'；否则推送。
-  function pushLedgerIfNewer(dbObj){
+  // 无条件上传（sha 乐观锁；内容比对由调用方完成，不依赖设备时钟）
+  function pushLedger(dbObj){
     if(!enabled()) return Promise.resolve(false);
-    return getFile('ledger/v1.json').then(function(f){
-      if(f){
-        var remote = null;
-        try{ remote = JSON.parse(f.content); }catch(e){}
-        if(remote && (Number(remote.updatedAt)||0) > (Number(dbObj.updatedAt)||0)){
-          return 'remote-newer';
-        }
-      }
-      return putFile('ledger/v1.json', JSON.stringify(dbObj), 'sync ledger', f && f.sha).then(function(){ return 'pushed'; });
-    });
+    return pushFile('ledger/v1.json', JSON.stringify(dbObj), 'sync ledger').then(function(){ return true; });
   }
 
   function pullLedger(){
@@ -134,7 +125,7 @@
     getConfig: getConfig, setConfig: setConfig, enabled: enabled,
     testConnection: testConnection,
     getFile: getFile, pushFile: pushFile,
-    pushLedgerIfNewer: pushLedgerIfNewer, pullLedger: pullLedger,
+    pushLedger: pushLedger, pullLedger: pullLedger,
     expiryInfo: expiryInfo
   };
 })();
