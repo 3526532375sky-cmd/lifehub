@@ -519,7 +519,7 @@ function saveGoal(){var v=parseFloat($('goalInput').value);v=isNaN(v)||v<0?0:v;s
 function doImportWith(fileEl,pwEl){var f=fileEl.files&&fileEl.files[0];var p=pwEl.value;if(!f){toast('请选择备份文件');return}if(!p){toast('请输入主密码');return}fileEl.value='';importBackup(f,p).then(function(){toast('导入成功');$('importModal').classList.add('hidden');enterApp()}).catch(function(err){toast(err.message||'导入失败')})}
 function openClearModal(){$('clearPw').value='';$('clearModal').classList.remove('hidden');setTimeout(function(){$('clearPw').focus()},60)}
 function verifyPassword(pw){var raw=localStorage.getItem(LSKEY);if(!raw)return Promise.resolve(true);var d2=JSON.parse(raw);return deriveKey(pw,d2.salt,d2.iter).then(function(k){return decryptStr(k,d2.iv,d2.data).then(function(){return true})}).catch(function(){return false})}
-function confirmClear(){var pw=$('clearPw').value;if(!pw){toast('请输入密码');return}verifyPassword(pw).then(function(ok){if(ok){localStorage.removeItem(LSKEY);location.reload()}else{toast('密码错误')}})}
+function confirmClear(){var pw=$('clearPw').value;if(!pw){toast('请输入密码');return}verifyPassword(pw).then(function(ok){if(ok){localStorage.removeItem(LSKEY);localStorage.removeItem('ledger_dirty');location.reload()}else{toast('密码错误')}})}
 $('btnSetup').addEventListener('click',function(){var p=$('setupPw').value,p2=$('setupPw2').value;if(p.length<6){toast('密码至少 6 位');return}if(p!==p2){toast('两次输入不一致');return}createDb(p).catch(function(){toast('创建失败')})});
 $('setupPw2').addEventListener('keydown',function(e){if(e.key==='Enter')$('btnSetup').click()});
 $('btnUnlock').addEventListener('click',function(){var p=$('unlockPw').value;if(!p){toast('请输入密码');return}unlock(p).catch(function(){toast('密码错误')})});
