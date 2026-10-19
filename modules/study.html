@@ -2,32 +2,168 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>学习 · 个人集成包</title>
 <style>
-  *{box-sizing:border-box;} body{margin:0;background:#f4f5f7;color:#1f2430;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}
-  .wrap{max-width:640px;margin:0 auto;padding:32px 20px 60px;}
-  a.back{color:#3b82f6;text-decoration:none;font-size:14px;}
-  .head{margin:18px 0 24px;} .head .ic{font-size:44px;} .head h1{margin:10px 0 6px;font-size:26px;}
-  .head p{margin:0;color:#6b7280;font-size:14.5px;}
-  .card{background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 1px 2px rgba(16,24,40,.06),0 4px 16px rgba(16,24,40,.05);}
-  .card h2{margin:0 0 10px;font-size:16px;} .card ul{margin:0;padding-left:18px;color:#4b5563;font-size:14.5px;line-height:2;}
-  .badge{display:inline-block;font-size:12px;color:#6b7280;background:#eef1f6;padding:3px 10px;border-radius:999px;margin-left:8px;vertical-align:middle;}
-  @media (prefers-color-scheme: dark){
-    body{background:#111418;color:#e7eaee}
-    .head p{color:#98a1ab}
-    .card{background:#1b2026;box-shadow:0 1px 2px rgba(0,0,0,.4)}
-    .card ul{color:#c7cdd4}
-    .badge{background:#242a32;color:#98a1ab}
+  :root{
+    --bg:#f4f5f7; --card:#ffffff; --text:#1f2430; --sub:#6b7280; --muted:#9aa1ad;
+    --border:#e6e9ee; --fill:#eef1f6; --blue:#3b82f6; --green:#2f9e63; --amber:#f59e0b; --red:#e5484d;
+    --shadow:0 1px 2px rgba(16,24,40,.06),0 4px 16px rgba(16,24,40,.05);
   }
+  @media (prefers-color-scheme: dark){
+    :root{--bg:#111418;--card:#1b2026;--text:#e7eaee;--sub:#98a1ab;--muted:#7d8790;--border:#2a313a;--fill:#242a32;--shadow:0 1px 2px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.35);}
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 20px 100px;}
+  a.back{color:var(--blue);text-decoration:none;font-size:14px;}
+  .head{margin:14px 0 18px;} .head h1{margin:0 0 6px;font-size:26px;} .head p{margin:0;color:var(--sub);font-size:14px;line-height:1.7;}
+  .seg{display:flex;background:var(--fill);border-radius:10px;padding:3px;gap:3px;margin-bottom:14px;}
+  .seg button{flex:1;border:none;background:transparent;padding:9px 4px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--sub);}
+  .seg button.on{background:var(--card);font-weight:600;color:var(--text);box-shadow:var(--shadow);}
+  .card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow);}
+  .card h3{margin:0 0 8px;font-size:15.5px;}
+  .card p{margin:0;font-size:14px;line-height:1.7;white-space:pre-wrap;color:var(--text);}
+  .meta{font-size:12px;color:var(--muted);margin-top:8px;}
+  .badge{font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600;background:var(--fill);color:var(--sub);}
+  .acts{margin-top:10px;display:flex;gap:8px;}
+  .acts button{border:none;background:var(--fill);border-radius:8px;padding:6px 10px;font-size:12.5px;cursor:pointer;color:var(--sub);}
+  .empty{color:var(--muted);font-size:13.5px;text-align:center;padding:16px 0;}
+  .fab{position:fixed;right:20px;bottom:24px;width:56px;height:56px;border-radius:50%;border:none;background:var(--blue);color:#fff;font-size:30px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.25);}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:60;}
+  .modal.hidden{display:none;}
+  .modal-box{background:var(--card);border-radius:18px 18px 0 0;padding:20px 18px 28px;width:100%;max-width:600px;max-height:90vh;overflow:auto;}
+  @media(min-width:600px){.modal{align-items:center}.modal-box{border-radius:18px}}
+  .field{margin-bottom:12px;} .field label{display:block;font-size:13px;color:var(--sub);margin-bottom:6px;}
+  input,select,textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-size:15px;background:var(--card);color:var(--text);outline:none;font-family:inherit;}
+  textarea{min-height:80px;resize:vertical;line-height:1.6;}
+  .row{display:flex;gap:10px;} .row .field{flex:1;}
+  .btn{width:100%;padding:12px;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff;}
+  .btn.ghost{background:var(--fill);color:var(--text);}
+  .hidden{display:none;}
 </style>
 </head>
 <body>
 <div class="wrap">
   <a class="back" href="../index.html">← 返回首页</a>
-  <div class="head"><div class="ic">📚</div><h1>学习<span class="badge">模块规划中</span></h1><p>该模块骨架已建立，功能正在逐步开发。</p></div>
-  <div class="card"><h2>计划功能</h2><ul><li>学习笔记（Markdown）</li><li>待读书单与阅读进度</li><li>考试 / 课程进度追踪</li><li>周复盘与学习统计</li></ul></div>
-  <div class="card"><h2>数据原则</h2><ul><li>数据本地加密存储，归你所有</li><li>支持一键导出 / 导入备份</li><li>后续统一接入跨设备自动同步</li></ul></div>
+  <div class="head">
+    <h1>📚 学习</h1>
+    <p>笔记 · 资料库 · 学习日志 · 复盘。采集无压力，复盘才有精进。</p>
+  </div>
+
+  <div class="seg" id="tabSeg">
+    <button data-t="notes" class="on">笔记</button>
+    <button data-t="resources">资料</button>
+    <button data-t="logs">日志</button>
+    <button data-t="reviews">复盘</button>
+  </div>
+
+  <div id="list"></div>
 </div>
+
+<button class="fab" id="fab">＋</button>
+
+<div class="modal hidden" id="modal">
+  <div class="modal-box">
+    <h2 style="margin:0 0 14px;font-size:18px" id="modalTitle"></h2>
+    <div id="f_notes">
+      <div class="field"><label>标题</label><input id="n_title"></div>
+      <div class="field"><label>内容（支持 Markdown 纯文本）</label><textarea id="n_content"></textarea></div>
+      <div class="field"><label>标签（用空格分隔）</label><input id="n_tags" placeholder="如：英语 编程"></div>
+    </div>
+    <div id="f_resources" class="hidden">
+      <div class="field"><label>标题 *</label><input id="r_title"></div>
+      <div class="row">
+        <div class="field"><label>类型</label><select id="r_type"><option value="book">书</option><option value="course">课程</option><option value="article">文章</option><option value="video">视频</option></select></div>
+        <div class="field"><label>状态</label><select id="r_status"><option value="want">想看</option><option value="doing">在读</option><option value="done">读完</option></select></div>
+      </div>
+      <div class="field"><label>进度</label><input id="r_progress" placeholder="如：读到第 3 章 / 60%"></div>
+      <div class="field"><label>备注</label><textarea id="r_note"></textarea></div>
+    </div>
+    <div id="f_logs" class="hidden">
+      <div class="field"><label>日期</label><input id="l_date" type="date"></div>
+      <div class="field"><label>内容</label><textarea id="l_content" placeholder="今天学了什么…"></textarea></div>
+    </div>
+    <div id="f_reviews" class="hidden">
+      <div class="field"><label>周期</label><select id="v_period"><option value="week">周复盘</option><option value="month">月复盘</option><option value="other">其他</option></select></div>
+      <div class="field"><label>内容</label><textarea id="v_content" placeholder="这周有效/无效、为什么、下一步…"></textarea></div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn ghost" id="btnCancel">取消</button>
+      <button class="btn" id="btnSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var KEY='study_data_v1';
+  var data={notes:[],resources:[],logs:[],reviews:[]};
+  var tab='notes', editingId=null;
+  var $=function(id){return document.getElementById(id)};
+  function load(){try{var o=JSON.parse(localStorage.getItem(KEY))||{};data={notes:o.notes||[],resources:o.resources||[],logs:o.logs||[],reviews:o.reviews||[]}}catch(e){}}
+  function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+  function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+  function tLabel(t){return t==='book'?'书':(t==='course'?'课程':(t==='article'?'文章':'视频'))}
+  function sLabel(s){return s==='want'?'想看':(s==='doing'?'在读':'读完')}
+  function pLabel(p){return p==='week'?'周复盘':(p==='month'?'月复盘':'复盘')}
+
+  function render(){
+    var el=$('list'), arr=data[tab];
+    if(!arr.length){el.innerHTML='<div class="empty">暂无内容，点右下角 ＋ 添加。</div>';return}
+    var html='';
+    if(tab==='notes'){
+      html=arr.map(function(r){return '<div class="card"><h3>'+esc(r.title||'（无标题）')+'</h3><p>'+esc(r.content)+'</p>'+(r.tags?('<div class="meta">'+esc(r.tags.split(/\s+/).join(' · '))+'</div>'):'')+'<div class="acts"><button data-act="edit" data-id="'+r.id+'">编辑</button><button data-act="del" data-id="'+r.id+'">删除</button></div></div>'}).join('');
+    }else if(tab==='resources'){
+      html=arr.map(function(r){return '<div class="card"><h3><span class="badge">'+tLabel(r.type)+'</span> <span class="badge">'+sLabel(r.status)+'</span> '+esc(r.title)+'</h3>'+(r.progress?('<p>'+esc(r.progress)+'</p>'):'')+(r.note?('<p>'+esc(r.note)+'</p>'):'')+'<div class="acts"><button data-act="edit" data-id="'+r.id+'">编辑</button><button data-act="del" data-id="'+r.id+'">删除</button></div></div>'}).join('');
+    }else if(tab==='logs'){
+      html=arr.map(function(r){return '<div class="card"><div class="meta">'+esc(r.date)+'</div><p>'+esc(r.content)+'</p><div class="acts"><button data-act="edit" data-id="'+r.id+'">编辑</button><button data-act="del" data-id="'+r.id+'">删除</button></div></div>'}).join('');
+    }else{
+      html=arr.map(function(r){return '<div class="card"><h3>'+pLabel(r.period)+'</h3><p>'+esc(r.content)+'</p><div class="acts"><button data-act="edit" data-id="'+r.id+'">编辑</button><button data-act="del" data-id="'+r.id+'">删除</button></div></div>'}).join('');
+    }
+    el.innerHTML=html;
+  }
+
+  function switchTab(t){tab=t;editingId=null;document.querySelectorAll('#tabSeg button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-t')===t)});render()}
+  function showFields(){['notes','resources','logs','reviews'].forEach(function(t){$('f_'+t).classList.toggle('hidden',t!==tab)})}
+
+  function openModal(r){
+    editingId=r?r.id:null;
+    $('modalTitle').textContent=(r?'编辑':'添加')+({notes:'笔记',resources:'资料',logs:'日志',reviews:'复盘'})[tab];
+    showFields();
+    if(tab==='notes'){$('n_title').value=r?r.title:'';$('n_content').value=r?r.content:'';$('n_tags').value=r?r.tags:''}
+    if(tab==='resources'){$('r_title').value=r?r.title:'';$('r_type').value=r?r.type:'book';$('r_status').value=r?r.status:'want';$('r_progress').value=r?r.progress:'';$('r_note').value=r?r.note:''}
+    if(tab==='logs'){$('l_date').value=r?r.date:today();$('l_content').value=r?r.content:''}
+    if(tab==='reviews'){$('v_period').value=r?r.period:'week';$('v_content').value=r?r.content:''}
+    $('modal').classList.remove('hidden');
+  }
+  function closeModal(){$('modal').classList.add('hidden');editingId=null}
+
+  $('tabSeg').addEventListener('click',function(e){var b=e.target.closest('button');if(b)switchTab(b.getAttribute('data-t'))});
+  $('fab').addEventListener('click',function(){openModal(null)});
+  $('btnCancel').addEventListener('click',closeModal);
+  $('modal').addEventListener('click',function(e){if(e.target===this)closeModal()});
+  $('list').addEventListener('click',function(e){
+    var b=e.target.closest('button[data-act]');if(!b)return;
+    var id=b.getAttribute('data-id'),act=b.getAttribute('data-act'),arr=data[tab];
+    if(act==='del'){data[tab]=arr.filter(function(r){return r.id!==id});save();render()}
+    else{var r=arr.find(function(x){return x.id===id});if(r)openModal(r)}
+  });
+  $('btnSave').addEventListener('click',function(){
+    var obj;
+    if(tab==='notes'){var title=$('n_title').value.trim();if(!title&&!$('n_content').value.trim()){alert('请填写内容');return}obj={title:title,content:$('n_content').value,tags:$('n_tags').value.trim()}}
+    else if(tab==='resources'){var t2=$('r_title').value.trim();if(!t2){alert('请填写标题');return}obj={title:t2,type:$('r_type').value,status:$('r_status').value,progress:$('r_progress').value.trim(),note:$('r_note').value.trim()}}
+    else if(tab==='logs'){var c=$('l_content').value.trim();if(!c){alert('请填写内容');return}obj={date:$('l_date').value||today(),content:c}}
+    else{var c2=$('v_content').value.trim();if(!c2){alert('请填写内容');return}obj={period:$('v_period').value,content:c2}}
+    if(editingId){data[tab]=data[tab].map(function(r){return r.id===editingId?Object.assign({},r,obj):r})}
+    else{obj.id='s'+Date.now();obj.ts=Date.now();data[tab].push(obj)}
+    save();closeModal();render();
+  });
+
+  load();render();
+})();
+</script>
 </body>
 </html>

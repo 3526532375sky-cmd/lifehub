@@ -2,45 +2,39 @@
 
 将「学习 · 生活 · 工作 · 记账 · 锻炼 · 决策」集成到一个可跨设备使用的个人系统中，目标是**精进个人**。
 
-## 已实现
-- **记账模块**：从旧账本原样迁移（`modules/ledger/`），已接入跨设备自动同步。
-- **同步引擎**（`sync.js`）：数据端到端加密后，通过 GitHub Contents API 存到你的私有仓库。
-- **设置页**（`settings.html`）：配置 GitHub 用户名 / 私有仓库 / token / 到期日，并支持连接测试。
-- **首页**（`index.html`）：模块导航 + 同步状态（含 token 到期日与「提前 5 天」提醒）。
-- **决策 · 手册**：占位页已建（`modules/decision.html`），借鉴《高性价比人生指南》方法论。
+## 模块框架
+构建规范见 **`FRAMEWORK.md`**（定位与三条铁律、统一技术底座、精进闭环、各模块数据字典、路线图）。
 
-## 如何跨设备同步（重要）
-1. 在 GitHub 建一个**私有仓库**（如 `lifehub-data`）。
-2. 生成一枚 **Fine-grained token**：仓库权限 Contents = Read and write（详情见「同步设置」页内提示）。
-3. 打开 `settings.html`，填入 用户名 / 仓库名 / token / 到期日，点「测试连接」→「保存」。
-4. 打开记账模块，正常使用即可——每次数据变化会自动加密上传；
-   换设备打开时，会先拉取云端最新数据（需输入**相同的主密码**解锁）。
+## 已实现模块
+- **记账**（`modules/ledger/`）：收支、分类统计、加密备份，已接入跨设备自动同步。
+- **锻炼**（`modules/fitness.html`）：动作记录 + 来源 + 要点提炼 + 评估；「已加入」自动汇总成锻炼 SOP。
+- **生活**（`modules/life.html`）：生活日志（当前为养鱼：喂食/换水/观察）。
+- **学习**（`modules/study.html`）：笔记 + 资料库 + 学习日志 + 复盘。
+- **工作**（`modules/work.html`）：工作 SOP + 相关记录（记录可关联 SOP）。
+- **决策·手册**（`modules/decision.html`）：成本×收益×证据分级 决策条目 + 个人手册。
 
-> ⚠️ 多台设备必须使用**相同的主密码**，否则拉取下来的数据无法解密。
-> 🔐 token 只保存在你自己的浏览器 localStorage 里；上传的是密文，仓库主人也看不到明文。
+## 同步（账本已接入，其余模块待接入）
+- 同步引擎：`sync.js`（GitHub Contents API，端到端加密，冲突自动重试）。
+- 设置页：`settings.html`（配置 owner / repo / token / 到期日，首页含到期提醒）。
 
 ## 目录结构
 ```
 个人集成包/
-├─ index.html            首页（模块导航 + 同步状态）
+├─ index.html            首页（模块导航 + 同步状态，跟随系统深浅色）
 ├─ settings.html         同步设置页
-├─ sync.js               共享同步引擎（GitHub Contents API）
+├─ sync.js               共享同步引擎
+├─ FRAMEWORK.md          模块框架
 ├─ README.md             本说明
 └─ modules/
-   ├─ ledger/            记账模块（已上线，已接同步）
-   ├─ decision.html      决策 · 手册（规划中）
-   ├─ study.html         学习（规划中）
-   ├─ life.html          生活（规划中）
-   ├─ work.html          工作（规划中）
-   └─ fitness.html       锻炼（规划中）
+   ├─ ledger/            记账
+   ├─ fitness.html       锻炼
+   ├─ life.html          生活
+   ├─ study.html         学习
+   ├─ work.html          工作
+   └─ decision.html      决策·手册
 ```
 
 ## 路线图
-- [x] 阶段 0：确定形态，搭建多模块骨架，迁移记账模块
-- [x] 阶段 1：跨设备自动同步（GitHub 私有仓库 + 端到端加密 + 到期提醒）
-- [ ] 阶段 2：逐个开发学习 / 生活 / 工作 / 锻炼 / 决策·手册模块
-- [ ] 阶段 3：接入 Codex 智能层（记账分析、锻炼计划、学习复盘、自动周报、个人手册 skill）
-- [ ] 阶段 4：自动化与「精进闭环」（每日记录 → 周复盘 → 月度调整）
-
-## 本地使用
-直接双击 `index.html` 即可打开集成包首页。先在 `settings.html` 配置同步，再进入「记账」模块。
+- [x] 框架定稿 + 六个模块全部落地（本地可用）
+- [ ] 新模块接入 `sync.js` 跨设备同步
+- [ ] 接入 Codex 智能层：周复盘生成、锻炼计划定制、决策手册 skill、人情世故 skill

@@ -2,63 +2,179 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>决策 · 手册 · 个人集成包</title>
 <style>
-  *{box-sizing:border-box;} body{margin:0;background:#f4f5f7;color:#1f2430;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}
-  .wrap{max-width:640px;margin:0 auto;padding:32px 20px 60px;}
-  a.back{color:#3b82f6;text-decoration:none;font-size:14px;}
-  .head{margin:18px 0 24px;} .head .ic{font-size:44px;} .head h1{margin:10px 0 6px;font-size:26px;}
-  .head p{margin:0;color:#6b7280;font-size:14.5px;line-height:1.7;}
-  .card{background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 1px 2px rgba(16,24,40,.06),0 4px 16px rgba(16,24,40,.05);}
-  .card h2{margin:0 0 10px;font-size:16px;} .card ul{margin:0;padding-left:18px;color:#4b5563;font-size:14.5px;line-height:2;}
-  .badge{display:inline-block;font-size:12px;color:#6b7280;background:#eef1f6;padding:3px 10px;border-radius:999px;margin-left:8px;vertical-align:middle;}
-  table{width:100%;border-collapse:collapse;font-size:13px;} td,th{border:1px solid #e5e7eb;padding:8px;text-align:left;} th{background:#f9fafb;font-weight:600;}
-  @media (prefers-color-scheme: dark){
-    body{background:#111418;color:#e7eaee}
-    .head p{color:#98a1ab}
-    .card{background:#1b2026;box-shadow:0 1px 2px rgba(0,0,0,.4)}
-    .card ul{color:#c7cdd4}
-    .badge{background:#242a32;color:#98a1ab}
-    table td,table th{border-color:#2a313a}
-    table th{background:#242a32}
+  :root{
+    --bg:#f4f5f7; --card:#ffffff; --text:#1f2430; --sub:#6b7280; --muted:#9aa1ad;
+    --border:#e6e9ee; --fill:#eef1f6; --teal:#0d9488; --blue:#3b82f6; --green:#2f9e63; --amber:#f59e0b; --red:#e5484d;
+    --b-do-bg:#e7f6ee;--b-do-fg:#176b3a; --b-no-bg:#fdecec;--b-no-fg:#b42318; --b-wait-bg:#eef1f6;--b-wait-fg:#6b7280;
+    --shadow:0 1px 2px rgba(16,24,40,.06),0 4px 16px rgba(16,24,40,.05);
   }
+  @media (prefers-color-scheme: dark){
+    :root{--bg:#111418;--card:#1b2026;--text:#e7eaee;--sub:#98a1ab;--muted:#7d8790;--border:#2a313a;--fill:#242a32;--shadow:0 1px 2px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.35);
+      --b-do-bg:#14301f;--b-do-fg:#5dd68c; --b-no-bg:#3a1b1b;--b-no-fg:#ff8a8a; --b-wait-bg:#242a32;--b-wait-fg:#98a1ab;}
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 20px 100px;}
+  a.back{color:var(--blue);text-decoration:none;font-size:14px;}
+  .head{margin:14px 0 18px;} .head h1{margin:0 0 6px;font-size:26px;} .head p{margin:0;color:var(--sub);font-size:14px;line-height:1.7;}
+  .seg{display:flex;background:var(--fill);border-radius:10px;padding:3px;gap:3px;margin-bottom:14px;}
+  .seg button{flex:1;border:none;background:transparent;padding:9px 4px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--sub);}
+  .seg button.on{background:var(--card);font-weight:600;color:var(--text);box-shadow:var(--shadow);}
+  .card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow);}
+  .card h3{margin:0 0 8px;font-size:15.5px;}
+  .card p{margin:0;font-size:14px;line-height:1.7;white-space:pre-wrap;color:var(--text);}
+  .meta{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.7;}
+  .badge{font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600;background:var(--fill);color:var(--sub);margin-right:4px;}
+  .b-do{background:var(--b-do-bg);color:var(--b-do-fg);} .b-no{background:var(--b-no-bg);color:var(--b-no-fg);} .b-wait{background:var(--b-wait-bg);color:var(--b-wait-fg);}
+  .ev-A{background:#e7f6ee;color:#176b3a;} .ev-B{background:#fff7e6;color:#8a6100;} .ev-C{background:var(--fill);color:var(--sub);}
+  @media (prefers-color-scheme: dark){.ev-A{background:#14301f;color:#5dd68c}.ev-B{background:#332a12;color:#e8c66a}}
+  .acts{margin-top:10px;display:flex;gap:8px;}
+  .acts button{border:none;background:var(--fill);border-radius:8px;padding:6px 10px;font-size:12.5px;cursor:pointer;color:var(--sub);}
+  .empty{color:var(--muted);font-size:13.5px;text-align:center;padding:16px 0;}
+  .fab{position:fixed;right:20px;bottom:24px;width:56px;height:56px;border-radius:50%;border:none;background:var(--teal);color:#fff;font-size:30px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.25);}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:60;}
+  .modal.hidden{display:none;}
+  .modal-box{background:var(--card);border-radius:18px 18px 0 0;padding:20px 18px 28px;width:100%;max-width:620px;max-height:92vh;overflow:auto;}
+  @media(min-width:600px){.modal{align-items:center}.modal-box{border-radius:18px}}
+  .field{margin-bottom:12px;} .field label{display:block;font-size:13px;color:var(--sub);margin-bottom:6px;}
+  input,select,textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-size:15px;background:var(--card);color:var(--text);outline:none;font-family:inherit;}
+  textarea{min-height:70px;resize:vertical;line-height:1.6;}
+  .row{display:flex;gap:8px;} .row .field{flex:1;}
+  .row3{display:flex;gap:8px;} .row3 .field{flex:1;}
+  .btn{width:100%;padding:12px;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;background:var(--teal);color:#fff;}
+  .btn.ghost{background:var(--fill);color:var(--text);}
+  .hidden{display:none;}
 </style>
 </head>
 <body>
 <div class="wrap">
   <a class="back" href="../index.html">← 返回首页</a>
   <div class="head">
-    <div class="ic">🧭</div>
-    <h1>决策 · 手册<span class="badge">模块规划中</span></h1>
-    <p>借鉴《高性价比人生指南》的方法论：把每条「要不要做 / 信不信」的事，用同一套字段记下来，沉淀成你自己的决策手册。</p>
+    <h1>🧭 决策 · 手册</h1>
+    <p>每条决策按「成本 × 收益 × 证据等级」记录；验证过的原则沉淀为个人手册。</p>
   </div>
 
-  <div class="card">
-    <h2>决策条目字段（每一条都这样记）</h2>
-    <table>
-      <tr><th>字段</th><th>说明</th></tr>
-      <tr><td>条目名称</td><td>动词开头，例如「报这个课」「换低钠盐」</td></tr>
-      <tr><td>成本</td><td>钱 / 时间 / 毅力，各标一档</td></tr>
-      <tr><td>说人话</td><td>一句话讲清好处</td></tr>
-      <tr><td>收益量级</td><td>大 / 中 / 小</td></tr>
-      <tr><td>收益口径</td><td>换寿命 / 钱 / 时间精力 / 自由</td></tr>
-      <tr><td>证据等级</td><td>A（有数字可核）/ B（有研究无数字）/ C（经验）</td></tr>
-      <tr><td>来源</td><td>原始文献链接或官方出处</td></tr>
-    </table>
+  <div class="seg" id="tabSeg">
+    <button data-t="entries" class="on">决策</button>
+    <button data-t="manuals">手册</button>
   </div>
 
-  <div class="card"><h2>三个定位</h2><ul>
-    <li>① <b>备选单不是任务清单</b>：只挑走一两条，不做没压力</li>
-    <li>② <b>成本收益拆解 + 证据分级</b>：用上面字段，别凭感觉</li>
-    <li>③ <b>做成 Codex 可查的 skill</b>：AI 先查你的手册再回答</li>
-  </ul></div>
+  <div class="seg" id="filterSeg">
+    <button data-v="all" class="on">全部</button>
+    <button data-v="do">做</button>
+    <button data-v="no">不做</button>
+    <button data-v="wait">待定</button>
+  </div>
 
-  <div class="card"><h2>数据原则</h2><ul>
-    <li>数据本地加密存储，归你所有</li>
-    <li>支持一键导出 / 导入备份</li>
-    <li>后续接入跨设备自动同步（与记账模块共用同步引擎）</li>
-  </ul></div>
+  <div id="list"></div>
 </div>
+
+<button class="fab" id="fab">＋</button>
+
+<div class="modal hidden" id="modal">
+  <div class="modal-box">
+    <h2 style="margin:0 0 14px;font-size:18px" id="modalTitle"></h2>
+    <div id="f_entries">
+      <div class="field"><label>条目名称 *（动词开头）</label><input id="e_name" placeholder="如：把盐换成低钠盐"></div>
+      <div class="row3">
+        <div class="field"><label>钱</label><select id="e_cm"><option value="低">低</option><option value="中">中</option><option value="高">高</option></select></div>
+        <div class="field"><label>时间</label><select id="e_ct"><option value="低">低</option><option value="中">中</option><option value="高">高</option></select></div>
+        <div class="field"><label>毅力</label><select id="e_cw"><option value="低">低</option><option value="中">中</option><option value="高">高</option></select></div>
+      </div>
+      <div class="field"><label>说人话（一句话讲清好处）</label><input id="e_plain" placeholder="如：60 岁以上高血压者死亡风险低约 12%"></div>
+      <div class="row">
+        <div class="field"><label>收益量级</label><select id="e_benefit"><option value="大">大</option><option value="中">中</option><option value="小">小</option></select></div>
+        <div class="field"><label>收益口径</label><select id="e_domain"><option value="寿命">换寿命</option><option value="钱">换钱</option><option value="时间精力">换时间精力</option><option value="自由">换人身自由</option><option value="其他">其他</option></select></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>证据等级</label><select id="e_evidence"><option value="A">A · 有数字可核</option><option value="B">B · 有研究无数字</option><option value="C">C · 经验/公认做法</option></select></div>
+        <div class="field"><label>结论</label><select id="e_verdict"><option value="wait">待定</option><option value="do">做</option><option value="no">不做</option></select></div>
+      </div>
+      <div class="field"><label>来源（文献 / 链接 / 出处）</label><input id="e_source" placeholder="可留空"></div>
+      <div class="field"><label>备注</label><textarea id="e_note"></textarea></div>
+    </div>
+    <div id="f_manuals" class="hidden">
+      <div class="field"><label>标题 *</label><input id="m_title" placeholder="如：我的原则 · 别替人担保"></div>
+      <div class="field"><label>内容</label><textarea id="m_content"></textarea></div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn ghost" id="btnCancel">取消</button>
+      <button class="btn" id="btnSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var KEY='decision_data_v1';
+  var data={entries:[],manuals:[]};
+  var tab='entries', filter='all', editingId=null;
+  var $=function(id){return document.getElementById(id)};
+  function load(){try{var o=JSON.parse(localStorage.getItem(KEY))||{};data={entries:o.entries||[],manuals:o.manuals||[]}}catch(e){}}
+  function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+  function vLabel(v){return v==='do'?'做':(v==='no'?'不做':'待定')}
+  function vClass(v){return v==='do'?'b-do':(v==='no'?'b-no':'b-wait')}
+  function dLabel(d){return d==='寿命'?'换寿命':(d==='钱'?'换钱':(d==='时间精力'?'换时间精力':(d==='自由'?'换人身自由':'其他')))}
+
+  function render(){
+    var el=$('list');
+    if(tab==='manuals'){
+      if(!data.manuals.length){el.innerHTML='<div class="empty">暂无手册，点右下角 ＋ 沉淀原则。</div>';return}
+      el.innerHTML=data.manuals.map(function(r){return '<div class="card"><h3>📖 '+esc(r.title)+'</h3><p>'+esc(r.content)+'</p><div class="acts"><button data-act="edit" data-id="'+r.id+'">编辑</button><button data-act="del" data-id="'+r.id+'">删除</button></div></div>'}).join('');
+      return;
+    }
+    var list=filter==='all'?data.entries:data.entries.filter(function(r){return r.verdict===filter});
+    if(!list.length){el.innerHTML='<div class="empty">暂无条目，点右下角 ＋ 添加。</div>';return}
+    el.innerHTML=list.map(function(r){
+      var cost='钱'+r.cm+' · 时间'+r.ct+' · 毅力'+r.cw;
+      var src=r.source?(' · 来源：'+esc(r.source)):'';
+      return '<div class="card"><h3><span class="badge '+vClass(r.verdict)+'">'+vLabel(r.verdict)+'</span><span class="badge ev-'+r.evidence+'">证据 '+r.evidence+'</span> '+esc(r.name)+'</h3>'+(r.plain?('<p>'+esc(r.plain)+'</p>'):'')+'<div class="meta">成本：'+cost+' · 收益：'+r.benefit+'（'+dLabel(r.domain)+'）'+src+'</div>'+(r.note?('<p style="margin-top:8px">'+esc(r.note)+'</p>'):'')+'<div class="acts"><button data-act="edit" data-id="'+r.id+'">编辑</button><button data-act="del" data-id="'+r.id+'">删除</button></div></div>';
+    }).join('');
+  }
+
+  function switchTab(t){tab=t;editingId=null;document.querySelectorAll('#tabSeg button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-t')===t)});$('filterSeg').style.display=tab==='entries'?'flex':'none';render()}
+
+  function openModal(r){
+    editingId=r?r.id:null;
+    $('modalTitle').textContent=(r?'编辑':'添加')+(tab==='entries'?'决策条目':'手册');
+    $('f_entries').classList.toggle('hidden',tab!=='entries');
+    $('f_manuals').classList.toggle('hidden',tab!=='manuals');
+    if(tab==='entries'){
+      $('e_name').value=r?r.name:'';$('e_cm').value=r?r.cm:'低';$('e_ct').value=r?r.ct:'低';$('e_cw').value=r?r.cw:'低';
+      $('e_plain').value=r?r.plain:'';$('e_benefit').value=r?r.benefit:'中';$('e_domain').value=r?r.domain:'其他';
+      $('e_evidence').value=r?r.evidence:'C';$('e_verdict').value=r?r.verdict:'wait';$('e_source').value=r?r.source:'';$('e_note').value=r?r.note:'';
+    }else{$('m_title').value=r?r.title:'';$('m_content').value=r?r.content:''}
+    $('modal').classList.remove('hidden');
+  }
+  function closeModal(){$('modal').classList.add('hidden');editingId=null}
+
+  $('tabSeg').addEventListener('click',function(e){var b=e.target.closest('button');if(b)switchTab(b.getAttribute('data-t'))});
+  $('filterSeg').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;filter=b.getAttribute('data-v');this.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b)});render()});
+  $('fab').addEventListener('click',function(){openModal(null)});
+  $('btnCancel').addEventListener('click',closeModal);
+  $('modal').addEventListener('click',function(e){if(e.target===this)closeModal()});
+  $('list').addEventListener('click',function(e){
+    var b=e.target.closest('button[data-act]');if(!b)return;
+    var id=b.getAttribute('data-id'),act=b.getAttribute('data-act'),arr=data[tab];
+    if(act==='del'){data[tab]=arr.filter(function(r){return r.id!==id});save();render()}
+    else{var r=arr.find(function(x){return x.id===id});if(r)openModal(r)}
+  });
+  $('btnSave').addEventListener('click',function(){
+    var obj;
+    if(tab==='entries'){var n=$('e_name').value.trim();if(!n){alert('请填写条目名称');return}obj={name:n,cm:$('e_cm').value,ct:$('e_ct').value,cw:$('e_cw').value,plain:$('e_plain').value.trim(),benefit:$('e_benefit').value,domain:$('e_domain').value,evidence:$('e_evidence').value,verdict:$('e_verdict').value,source:$('e_source').value.trim(),note:$('e_note').value.trim()}}
+    else{var t=$('m_title').value.trim();if(!t){alert('请填写标题');return}obj={title:t,content:$('m_content').value}}
+    if(editingId){data[tab]=data[tab].map(function(r){return r.id===editingId?Object.assign({},r,obj):r})}
+    else{obj.id='d'+Date.now();obj.ts=Date.now();data[tab].push(obj)}
+    save();closeModal();render();
+  });
+
+  load();render();
+})();
+</script>
 </body>
 </html>
