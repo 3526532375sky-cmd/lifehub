@@ -2,25 +2,136 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>生活 · 个人集成包</title>
 <style>
-  *{box-sizing:border-box;} body{margin:0;background:#f4f5f7;color:#1f2430;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}
-  .wrap{max-width:640px;margin:0 auto;padding:32px 20px 60px;}
-  a.back{color:#3b82f6;text-decoration:none;font-size:14px;}
-  .head{margin:18px 0 24px;} .head .ic{font-size:44px;} .head h1{margin:10px 0 6px;font-size:26px;}
-  .head p{margin:0;color:#6b7280;font-size:14.5px;}
-  .card{background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 1px 2px rgba(16,24,40,.06),0 4px 16px rgba(16,24,40,.05);}
-  .card h2{margin:0 0 10px;font-size:16px;} .card ul{margin:0;padding-left:18px;color:#4b5563;font-size:14.5px;line-height:2;}
-  .badge{display:inline-block;font-size:12px;color:#6b7280;background:#eef1f6;padding:3px 10px;border-radius:999px;margin-left:8px;vertical-align:middle;}
+  :root{
+    --bg:#f4f5f7; --card:#ffffff; --text:#1f2430; --sub:#6b7280; --muted:#9aa1ad;
+    --border:#e6e9ee; --fill:#eef1f6; --green:#2f9e63; --blue:#3b82f6; --amber:#f59e0b; --red:#e5484d;
+    --shadow:0 1px 2px rgba(16,24,40,.06),0 4px 16px rgba(16,24,40,.05);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#111418; --card:#1b2026; --text:#e7eaee; --sub:#98a1ab; --muted:#7d8790;
+      --border:#2a313a; --fill:#242a32;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.35);
+    }
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}
+  .wrap{max-width:680px;margin:0 auto;padding:24px 20px 100px;}
+  a.back{color:var(--blue);text-decoration:none;font-size:14px;}
+  .head{margin:14px 0 20px;} .head h1{margin:0 0 6px;font-size:26px;} .head p{margin:0;color:var(--sub);font-size:14px;line-height:1.7;}
+  .card{background:var(--card);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow);}
+  .card h2{margin:0 0 12px;font-size:16px;}
+  .seg{display:flex;background:var(--fill);border-radius:10px;padding:3px;gap:3px;margin-bottom:14px;}
+  .seg button{flex:1;border:none;background:transparent;padding:9px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--sub);}
+  .seg button.on{background:var(--card);font-weight:600;color:var(--text);box-shadow:var(--shadow);}
+  .empty{color:var(--muted);font-size:13.5px;text-align:center;padding:14px 0;}
+  .rec{background:var(--card);border-radius:16px;padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);}
+  .rec-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
+  .rec-type{font-size:12px;padding:3px 9px;border-radius:999px;font-weight:600;background:var(--fill);color:var(--sub);}
+  .t-feed{background:#e7f6ee;color:#176b3a;} .t-water{background:#e6f1fc;color:#1d4ed8;} .t-obs{background:#fff7e6;color:#8a6100;} .t-other{background:var(--fill);color:var(--sub);}
+  @media (prefers-color-scheme: dark){
+    .t-feed{background:#14301f;color:#5dd68c;} .t-water{background:#10253f;color:#7db8f5;} .t-obs{background:#332a12;color:#e8c66a;}
+  }
+  .rec-date{font-size:12px;color:var(--muted);}
+  .rec-body{margin:0;font-size:14.5px;line-height:1.7;white-space:pre-wrap;}
+  .rec-del{border:none;background:none;color:var(--muted);cursor:pointer;font-size:14px;padding:4px;}
+  .fab{position:fixed;right:20px;bottom:24px;width:56px;height:56px;border-radius:50%;border:none;background:var(--amber);color:#fff;font-size:30px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.25);}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:60;}
+  .modal.hidden{display:none;}
+  .modal-box{background:var(--card);border-radius:18px 18px 0 0;padding:20px 18px 28px;width:100%;max-width:600px;max-height:90vh;overflow:auto;}
+  @media(min-width:600px){.modal{align-items:center}.modal-box{border-radius:18px}}
+  .field{margin-bottom:12px;} .field label{display:block;font-size:13px;color:var(--sub);margin-bottom:6px;}
+  input,select,textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-size:15px;background:var(--card);color:var(--text);outline:none;font-family:inherit;}
+  textarea{min-height:88px;resize:vertical;line-height:1.6;}
+  .btn{width:100%;padding:12px;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;background:var(--amber);color:#fff;}
+  .btn.ghost{background:var(--fill);color:var(--text);}
 </style>
 </head>
 <body>
 <div class="wrap">
   <a class="back" href="../index.html">← 返回首页</a>
-  <div class="head"><div class="ic">🏠</div><h1>生活<span class="badge">模块规划中</span></h1><p>该模块骨架已建立，功能正在逐步开发。</p></div>
-  <div class="card"><h2>计划功能</h2><ul><li>待办清单</li><li>习惯打卡</li><li>纪念日 / 重要日期提醒</li><li>生活流水记录</li></ul></div>
-  <div class="card"><h2>数据原则</h2><ul><li>数据本地加密存储，归你所有</li><li>支持一键导出 / 导入备份</li><li>后续统一接入跨设备自动同步</li></ul></div>
+  <div class="head">
+    <h1>🏠 生活 · 养鱼日志</h1>
+    <p>记录宿舍小鱼的日常：喂食、换水、观察状态等，方便复盘照料节奏。</p>
+  </div>
+
+  <div class="seg" id="filterSeg">
+    <button data-t="all" class="on">全部</button>
+    <button data-t="feed">喂食</button>
+    <button data-t="water">换水</button>
+    <button data-t="obs">观察</button>
+  </div>
+
+  <div id="list"></div>
 </div>
+
+<button class="fab" id="fab" title="添加记录">＋</button>
+
+<div class="modal hidden" id="modal">
+  <div class="modal-box">
+    <h2 style="margin:0 0 14px;font-size:18px">添加记录</h2>
+    <div class="field"><label>类型</label>
+      <select id="f_type"><option value="feed">喂食</option><option value="water">换水</option><option value="obs">观察</option><option value="other">其他</option></select>
+    </div>
+    <div class="field"><label>日期</label><input id="f_date" type="date"></div>
+    <div class="field"><label>内容</label><textarea id="f_content" placeholder="如：少量喂食；鱼活跃；水略浑…"></textarea></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn ghost" id="btnCancel">取消</button>
+      <button class="btn" id="btnSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var KEY='life_fish_records_v1';
+  var records=[], filter='all';
+  var $=function(id){return document.getElementById(id)};
+  function load(){try{records=JSON.parse(localStorage.getItem(KEY))||[]}catch(e){records=[]}}
+  function save(){localStorage.setItem(KEY,JSON.stringify(records))}
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+  function typeLabel(t){return t==='feed'?'喂食':(t==='water'?'换水':(t==='obs'?'观察':'其他'))}
+  function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+
+  function render(){
+    var list=filter==='all'?records:records.filter(function(r){return r.type===filter});
+    var el=$('list');
+    if(!list.length){el.innerHTML='<div class="empty">暂无记录，点右下角 ＋ 添加。</div>';return}
+    el.innerHTML=list.map(function(r){
+      return '<div class="rec"><div class="rec-top"><span class="rec-type t-'+r.type+'">'+typeLabel(r.type)+'</span><span class="rec-date">'+esc(r.date)+'</span><button class="rec-del" data-id="'+r.id+'">✕</button></div><p class="rec-body">'+esc(r.content)+'</p></div>';
+    }).join('');
+  }
+
+  $('fab').addEventListener('click',function(){
+    $('f_type').value='feed';$('f_date').value=today();$('f_content').value='';
+    $('modal').classList.remove('hidden');setTimeout(function(){$('f_content').focus()},60);
+  });
+  $('btnCancel').addEventListener('click',function(){$('modal').classList.add('hidden')});
+  $('modal').addEventListener('click',function(e){if(e.target===this)$('modal').classList.add('hidden')});
+  $('filterSeg').addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    filter=b.getAttribute('data-t');
+    this.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b)});
+    render();
+  });
+  $('list').addEventListener('click',function(e){
+    var b=e.target.closest('button[data-id]');if(!b)return;
+    var id=b.getAttribute('data-id');
+    records=records.filter(function(r){return r.id!==id});save();render();
+  });
+  $('btnSave').addEventListener('click',function(){
+    var c=$('f_content').value.trim();
+    if(!c){alert('请填写内容');return}
+    records.push({id:'f'+Date.now(),type:$('f_type').value,date:$('f_date').value||today(),content:c,ts:Date.now()});
+    save();$('modal').classList.add('hidden');render();
+  });
+
+  load();render();
+})();
+</script>
 </body>
 </html>

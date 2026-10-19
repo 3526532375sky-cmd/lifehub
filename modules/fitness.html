@@ -2,25 +2,190 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>锻炼 · 个人集成包</title>
 <style>
-  *{box-sizing:border-box;} body{margin:0;background:#f4f5f7;color:#1f2430;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}
-  .wrap{max-width:640px;margin:0 auto;padding:32px 20px 60px;}
-  a.back{color:#3b82f6;text-decoration:none;font-size:14px;}
-  .head{margin:18px 0 24px;} .head .ic{font-size:44px;} .head h1{margin:10px 0 6px;font-size:26px;}
-  .head p{margin:0;color:#6b7280;font-size:14.5px;}
-  .card{background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 1px 2px rgba(16,24,40,.06),0 4px 16px rgba(16,24,40,.05);}
-  .card h2{margin:0 0 10px;font-size:16px;} .card ul{margin:0;padding-left:18px;color:#4b5563;font-size:14.5px;line-height:2;}
-  .badge{display:inline-block;font-size:12px;color:#6b7280;background:#eef1f6;padding:3px 10px;border-radius:999px;margin-left:8px;vertical-align:middle;}
+  :root{
+    --bg:#f4f5f7; --card:#ffffff; --text:#1f2430; --sub:#6b7280; --muted:#9aa1ad;
+    --border:#e6e9ee; --fill:#eef1f6; --green:#2f9e63; --red:#e5484d; --blue:#3b82f6; --amber:#f59e0b;
+    --tag-pending-bg:#eef1f6; --tag-pending-fg:#6b7280;
+    --tag-added-bg:#e7f6ee; --tag-added-fg:#176b3a;
+    --tag-skip-bg:#fdecec; --tag-skip-fg:#b42318;
+    --shadow:0 1px 2px rgba(16,24,40,.06),0 4px 16px rgba(16,24,40,.05);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#111418; --card:#1b2026; --text:#e7eaee; --sub:#98a1ab; --muted:#7d8790;
+      --border:#2a313a; --fill:#242a32;
+      --tag-pending-bg:#242a32; --tag-pending-fg:#98a1ab;
+      --tag-added-bg:#14301f; --tag-added-fg:#5dd68c;
+      --tag-skip-bg:#3a1b1b; --tag-skip-fg:#ff8a8a;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 16px rgba(0,0,0,.35);
+    }
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 20px 100px;}
+  a.back{color:var(--blue);text-decoration:none;font-size:14px;}
+  .head{margin:14px 0 20px;} .head h1{margin:0 0 6px;font-size:26px;} .head p{margin:0;color:var(--sub);font-size:14px;line-height:1.7;}
+  .card{background:var(--card);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow);}
+  .card h2{margin:0 0 12px;font-size:16px;}
+  .seg{display:flex;background:var(--fill);border-radius:10px;padding:3px;gap:3px;margin-bottom:14px;}
+  .seg button{flex:1;border:none;background:transparent;padding:9px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--sub);}
+  .seg button.on{background:var(--card);font-weight:600;color:var(--text);box-shadow:var(--shadow);}
+  .sop-list{margin:0;padding-left:20px;line-height:2.1;font-size:15px;}
+  .sop-list li::marker{color:var(--green);font-weight:700;}
+  .empty{color:var(--muted);font-size:13.5px;text-align:center;padding:14px 0;}
+  .rec{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow);}
+  .rec-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+  .rec-name{font-size:16px;font-weight:700;margin:0;}
+  .rec-acts{display:flex;gap:6px;flex:none;}
+  .rec-acts button{border:none;background:var(--fill);border-radius:8px;padding:6px 9px;font-size:12.5px;cursor:pointer;color:var(--sub);}
+  .badge{font-size:11px;padding:3px 9px;border-radius:999px;font-weight:600;flex:none;}
+  .b-pending{background:var(--tag-pending-bg);color:var(--tag-pending-fg);}
+  .b-added{background:var(--tag-added-bg);color:var(--tag-added-fg);}
+  .b-skip{background:var(--tag-skip-bg);color:var(--tag-skip-fg);}
+  .rec-src{font-size:12.5px;color:var(--sub);margin:8px 0 0;}
+  .rec-src a{color:var(--blue);}
+  .rec-points{margin:8px 0 0;font-size:14px;line-height:1.7;white-space:pre-wrap;color:var(--text);}
+  .rec-note{margin:8px 0 0;font-size:12.5px;color:var(--muted);white-space:pre-wrap;}
+  .fab{position:fixed;right:20px;bottom:24px;width:56px;height:56px;border-radius:50%;border:none;background:var(--green);color:#fff;font-size:30px;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.25);}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;z-index:60;}
+  .modal.hidden{display:none;}
+  .modal-box{background:var(--card);border-radius:18px 18px 0 0;padding:20px 18px 28px;width:100%;max-width:600px;max-height:90vh;overflow:auto;}
+  @media(min-width:600px){.modal{align-items:center}.modal-box{border-radius:18px}}
+  .field{margin-bottom:12px;} .field label{display:block;font-size:13px;color:var(--sub);margin-bottom:6px;}
+  input,select,textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-size:15px;background:var(--card);color:var(--text);outline:none;font-family:inherit;}
+  textarea{min-height:80px;resize:vertical;line-height:1.6;}
+  .row{display:flex;gap:10px;} .row .field{flex:1;}
+  .btn{width:100%;padding:12px;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;background:var(--green);color:#fff;}
+  .btn.ghost{background:var(--fill);color:var(--text);}
 </style>
 </head>
 <body>
 <div class="wrap">
   <a class="back" href="../index.html">← 返回首页</a>
-  <div class="head"><div class="ic">💪</div><h1>锻炼<span class="badge">模块规划中</span></h1><p>该模块骨架已建立，功能正在逐步开发。</p></div>
-  <div class="card"><h2>计划功能</h2><ul><li>训练计划</li><li>每日锻炼打卡</li><li>体重 / 体测数据曲线</li><li>训练效果复盘</li></ul></div>
-  <div class="card"><h2>数据原则</h2><ul><li>数据本地加密存储，归你所有</li><li>支持一键导出 / 导入备份</li><li>后续统一接入跨设备自动同步</li></ul></div>
+  <div class="head">
+    <h1>💪 锻炼 · 动作库</h1>
+    <p>看到好动作就记下来（如泽奇深蹲、蹲猴桩），附上视频/书本来源、提炼要点，并评估是否加入锻炼。已加入的动作会自动汇总成你的「锻炼 SOP」。</p>
+  </div>
+
+  <div class="card">
+    <h2>📋 我的锻炼 SOP</h2>
+    <ol class="sop-list" id="sopList"></ol>
+  </div>
+
+  <div class="seg" id="filterSeg">
+    <button data-s="all" class="on">全部</button>
+    <button data-s="pending">待评估</button>
+    <button data-s="added">已加入</button>
+    <button data-s="skip">暂不加入</button>
+  </div>
+
+  <div id="list"></div>
 </div>
+
+<button class="fab" id="fab" title="添加动作">＋</button>
+
+<div class="modal hidden" id="modal">
+  <div class="modal-box">
+    <h2 style="margin:0 0 14px;font-size:18px" id="modalTitle">添加动作</h2>
+    <div class="field"><label>动作名称 *</label><input id="f_name" placeholder="如：泽奇深蹲"></div>
+    <div class="row">
+      <div class="field"><label>来源类型</label>
+        <select id="f_srcType"><option value="video">视频</option><option value="book">书本</option><option value="web">网页</option><option value="other">其他</option></select>
+      </div>
+      <div class="field"><label>评估</label>
+        <select id="f_status"><option value="pending">待评估</option><option value="added">已加入</option><option value="skip">暂不加入</option></select>
+      </div>
+    </div>
+    <div class="field"><label>来源（视频链接 / 书名 / 网页地址）</label><input id="f_source" placeholder="可留空"></div>
+    <div class="field"><label>要点提炼</label><textarea id="f_points" placeholder="动作要领、注意事项…"></textarea></div>
+    <div class="field"><label>备注</label><textarea id="f_note" placeholder="可选"></textarea></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn ghost" id="btnCancel">取消</button>
+      <button class="btn" id="btnSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var KEY='fitness_records_v1';
+  var records=[], filter='all', editingId=null;
+  var $=function(id){return document.getElementById(id)};
+
+  function load(){try{records=JSON.parse(localStorage.getItem(KEY))||[]}catch(e){records=[]}}
+  function save(){localStorage.setItem(KEY,JSON.stringify(records))}
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+  function stLabel(s){return s==='added'?'已加入':(s==='skip'?'暂不加入':'待评估')}
+  function srcLabel(t){return t==='video'?'视频':(t==='book'?'书本':(t==='web'?'网页':'其他'))}
+
+  function renderSop(){
+    var added=records.filter(function(r){return r.status==='added'});
+    var el=$('sopList');
+    if(!added.length){el.innerHTML='<span class="empty">还没有「已加入」的动作，评估后加入即可形成 SOP。</span>';return}
+    el.innerHTML=added.map(function(r){return '<li>'+esc(r.name)+'</li>'}).join('');
+  }
+
+  function render(){
+    renderSop();
+    var list=filter==='all'?records:records.filter(function(r){return r.status===filter});
+    var el=$('list');
+    if(!list.length){el.innerHTML='<div class="empty">暂无记录，点右下角 ＋ 添加。</div>';return}
+    el.innerHTML=list.map(function(r){
+      var src='';
+      if(r.source){
+        var url=/^https?:\/\//.test(r.source);
+        src='<div class="rec-src">'+srcLabel(r.srcType)+'：'+(url?('<a href="'+esc(r.source)+'" target="_blank" rel="noopener">'+esc(r.source)+'</a>'):esc(r.source))+'</div>';
+      }
+      var pts=r.points?('<div class="rec-points">'+esc(r.points)+'</div>'):'';
+      var note=r.note?('<div class="rec-note">备注：'+esc(r.note)+'</div>'):'';
+      return '<div class="rec"><div class="rec-top"><div style="min-width:0"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="rec-name">'+esc(r.name)+'</span><span class="badge b-'+r.status+'">'+stLabel(r.status)+'</span></div>'+src+pts+note+'</div><div class="rec-acts"><button data-act="edit" data-id="'+r.id+'">编辑</button><button data-act="del" data-id="'+r.id+'">删除</button></div></div></div>';
+    }).join('');
+  }
+
+  function openModal(r){
+    editingId=r?r.id:null;
+    $('modalTitle').textContent=r?'编辑动作':'添加动作';
+    $('f_name').value=r?r.name:'';
+    $('f_srcType').value=r?r.srcType:'video';
+    $('f_status').value=r?r.status:'pending';
+    $('f_source').value=r?r.source:'';
+    $('f_points').value=r?r.points:'';
+    $('f_note').value=r?r.note:'';
+    $('modal').classList.remove('hidden');
+    setTimeout(function(){$('f_name').focus()},60);
+  }
+  function closeModal(){$('modal').classList.add('hidden');editingId=null}
+
+  $('fab').addEventListener('click',function(){openModal(null)});
+  $('btnCancel').addEventListener('click',closeModal);
+  $('modal').addEventListener('click',function(e){if(e.target===this)closeModal()});
+  $('filterSeg').addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    filter=b.getAttribute('data-s');
+    this.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b)});
+    render();
+  });
+  $('list').addEventListener('click',function(e){
+    var b=e.target.closest('button[data-act]');if(!b)return;
+    var id=b.getAttribute('data-id'),act=b.getAttribute('data-act');
+    if(act==='del'){records=records.filter(function(r){return r.id!==id});save();render()}
+    else if(act==='edit'){var r=records.find(function(x){return x.id===id});if(r)openModal(r)}
+  });
+  $('btnSave').addEventListener('click',function(){
+    var name=$('f_name').value.trim();
+    if(!name){alert('请填写动作名称');return}
+    var data={name:name,srcType:$('f_srcType').value,status:$('f_status').value,source:$('f_source').value.trim(),points:$('f_points').value.trim(),note:$('f_note').value.trim()};
+    if(editingId){records=records.map(function(r){return r.id===editingId?Object.assign({},r,data):r})}
+    else{data.id='f'+Date.now();data.ts=Date.now();records.push(data)}
+    save();closeModal();render();
+  });
+
+  load();render();
+})();
+</script>
 </body>
 </html>
