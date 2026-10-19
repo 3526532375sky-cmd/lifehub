@@ -91,9 +91,17 @@
     return req('PUT', repoPath() + '/contents/' + encPath(path), body);
   }
 
-  // 通用：上传一个字符串文件（保留冲突检测在调用方做）
-  function pushFile(path, contentStr, message){
-    return getFile(path).then(function(f){ return putFile(path, contentStr, message, f && f.sha); });
+  // 通用：上传一个字符串文件；遇到 409 冲突（并发写导致 sha 过期）自动重试
+  function pushFile(path, contentStr, message, retries){
+    retries = retries || 0;
+    return getFile(path).then(function(f){
+      return putFile(path, contentStr, message, f && f.sha).catch(function(e){
+        if(e.status === 409 && retries < 3){
+          return pushFile(path, contentStr, message, retries + 1);
+        }
+        throw e;
+      });
+    });
   }
 
   // —— 记账模块专用 ——
