@@ -15,11 +15,11 @@
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}
-  .wrap{max-width:760px;margin:0 auto;padding:24px 20px 100px;}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 20px 110px;}
   a.back{color:var(--blue);text-decoration:none;font-size:14px;}
   .head{margin:14px 0 18px;} .head h1{margin:0 0 6px;font-size:26px;} .head p{margin:0;color:var(--sub);font-size:14px;line-height:1.7;}
-  .seg{display:flex;background:var(--fill);border-radius:10px;padding:3px;gap:3px;margin-bottom:14px;}
-  .seg button{flex:1;border:none;background:transparent;padding:9px 4px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--sub);}
+  .seg{display:flex;background:var(--fill);border-radius:10px;padding:3px;gap:3px;margin-bottom:14px;overflow-x:auto;}
+  .seg button{flex:1 0 auto;border:none;background:transparent;padding:9px 10px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--sub);white-space:nowrap;}
   .seg button.on{background:var(--card);font-weight:600;color:var(--text);box-shadow:var(--shadow);}
   .card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow);}
   .card h3{margin:0 0 8px;font-size:15.5px;}
@@ -41,21 +41,29 @@
   .btn{width:100%;padding:12px;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff;}
   .btn.ghost{background:var(--fill);color:var(--text);}
   .hidden{display:none;}
+  .fc{min-height:110px;display:flex;align-items:center;justify-content:center;text-align:center;padding:16px;font-size:15px;line-height:1.7;border-radius:12px;background:var(--fill);cursor:pointer;user-select:none;}
+  .timer-box{text-align:center;padding:18px;}
+  .timer-num{font-size:64px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:2px;}
+  .timer-btn{display:flex;gap:10px;margin-top:16px;}
+  .timer-btn button{flex:1;padding:12px;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;background:var(--green);color:#fff;}
+  .timer-btn button.ghost{background:var(--fill);color:var(--text);}
+  .timer-dur{margin-top:14px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;}
+  .timer-dur button{border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:8px;padding:6px 12px;font-size:13px;cursor:pointer;}
+  .timer-dur button.on{background:var(--green);color:#fff;border-color:var(--green);}
 </style>
 </head>
 <body>
 <div class="wrap">
   <a class="back" href="../index.html">← 返回首页</a>
-  <div class="head">
-    <h1>📚 学习</h1>
-    <p>笔记 · 资料库 · 学习日志 · 复盘。采集无压力，复盘才有精进。</p>
-  </div>
+  <div class="head"><h1>📚 学习</h1><p>笔记 · 资料 · 日志 · 复盘 · 闪卡 · 专注。采集无压力，复盘才有精进。</p></div>
 
   <div class="seg" id="tabSeg">
     <button data-t="notes" class="on">笔记</button>
     <button data-t="resources">资料</button>
     <button data-t="logs">日志</button>
     <button data-t="reviews">复盘</button>
+    <button data-t="cards">闪卡</button>
+    <button data-t="pomodoro">专注</button>
   </div>
 
   <div id="list"></div>
@@ -68,25 +76,26 @@
     <h2 style="margin:0 0 14px;font-size:18px" id="modalTitle"></h2>
     <div id="f_notes">
       <div class="field"><label>标题</label><input id="n_title"></div>
-      <div class="field"><label>内容（支持 Markdown 纯文本）</label><textarea id="n_content"></textarea></div>
-      <div class="field"><label>标签（用空格分隔）</label><input id="n_tags" placeholder="如：英语 编程"></div>
+      <div class="field"><label>内容</label><textarea id="n_content"></textarea></div>
+      <div class="field"><label>标签（空格分隔）</label><input id="n_tags"></div>
     </div>
     <div id="f_resources" class="hidden">
       <div class="field"><label>标题 *</label><input id="r_title"></div>
-      <div class="row">
-        <div class="field"><label>类型</label><select id="r_type"><option value="book">书</option><option value="course">课程</option><option value="article">文章</option><option value="video">视频</option></select></div>
-        <div class="field"><label>状态</label><select id="r_status"><option value="want">想看</option><option value="doing">在读</option><option value="done">读完</option></select></div>
-      </div>
-      <div class="field"><label>进度</label><input id="r_progress" placeholder="如：读到第 3 章 / 60%"></div>
+      <div class="row"><div class="field"><label>类型</label><select id="r_type"><option value="book">书</option><option value="course">课程</option><option value="article">文章</option><option value="video">视频</option></select></div><div class="field"><label>状态</label><select id="r_status"><option value="want">想看</option><option value="doing">在读</option><option value="done">读完</option></select></div></div>
+      <div class="field"><label>进度</label><input id="r_progress"></div>
       <div class="field"><label>备注</label><textarea id="r_note"></textarea></div>
     </div>
     <div id="f_logs" class="hidden">
       <div class="field"><label>日期</label><input id="l_date" type="date"></div>
-      <div class="field"><label>内容</label><textarea id="l_content" placeholder="今天学了什么…"></textarea></div>
+      <div class="field"><label>内容</label><textarea id="l_content"></textarea></div>
     </div>
     <div id="f_reviews" class="hidden">
       <div class="field"><label>周期</label><select id="v_period"><option value="week">周复盘</option><option value="month">月复盘</option><option value="other">其他</option></select></div>
-      <div class="field"><label>内容</label><textarea id="v_content" placeholder="这周有效/无效、为什么、下一步…"></textarea></div>
+      <div class="field"><label>内容</label><textarea id="v_content"></textarea></div>
+    </div>
+    <div id="f_cards" class="hidden">
+      <div class="field"><label>正面（问题/词/概念）</label><input id="c_front"></div>
+      <div class="field"><label>背面（答案/释义）</label><textarea id="c_back"></textarea></div>
     </div>
     <div style="display:flex;gap:10px">
       <button class="btn ghost" id="btnCancel">取消</button>
@@ -99,10 +108,10 @@
 (function(){
   'use strict';
   var KEY='study_data_v1';
-  var data={notes:[],resources:[],logs:[],reviews:[]};
-  var tab='notes', editingId=null;
+  var data={notes:[],resources:[],logs:[],reviews:[],cards:[]};
+  var tab='notes', editingId=null, flip={};
   var $=function(id){return document.getElementById(id)};
-  function load(){try{var o=JSON.parse(localStorage.getItem(KEY))||{};data={notes:o.notes||[],resources:o.resources||[],logs:o.logs||[],reviews:o.reviews||[]}}catch(e){}}
+  function load(){try{var o=JSON.parse(localStorage.getItem(KEY))||{};data={notes:o.notes||[],resources:o.resources||[],logs:o.logs||[],reviews:o.reviews||[],cards:o.cards||[]}}catch(e){}}
   function save(){localStorage.setItem(KEY,JSON.stringify(data))}
   function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
   function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
@@ -112,6 +121,7 @@
 
   function render(){
     var el=$('list'), arr=data[tab];
+    if(tab==='pomodoro'){renderPomodoro();return}
     if(!arr.length){el.innerHTML='<div class="empty">暂无内容，点右下角 ＋ 添加。</div>';return}
     var html='';
     if(tab==='notes'){
@@ -120,23 +130,27 @@
       html=arr.map(function(r){return '<div class="card"><h3><span class="badge">'+tLabel(r.type)+'</span> <span class="badge">'+sLabel(r.status)+'</span> '+esc(r.title)+'</h3>'+(r.progress?('<p>'+esc(r.progress)+'</p>'):'')+(r.note?('<p>'+esc(r.note)+'</p>'):'')+'<div class="acts"><button data-act="edit" data-id="'+r.id+'">编辑</button><button data-act="del" data-id="'+r.id+'">删除</button></div></div>'}).join('');
     }else if(tab==='logs'){
       html=arr.map(function(r){return '<div class="card"><div class="meta">'+esc(r.date)+'</div><p>'+esc(r.content)+'</p><div class="acts"><button data-act="edit" data-id="'+r.id+'">编辑</button><button data-act="del" data-id="'+r.id+'">删除</button></div></div>'}).join('');
-    }else{
+    }else if(tab==='reviews'){
       html=arr.map(function(r){return '<div class="card"><h3>'+pLabel(r.period)+'</h3><p>'+esc(r.content)+'</p><div class="acts"><button data-act="edit" data-id="'+r.id+'">编辑</button><button data-act="del" data-id="'+r.id+'">删除</button></div></div>'}).join('');
+    }else if(tab==='cards'){
+      html=arr.map(function(r){var f=!!flip[r.id];return '<div class="card"><div class="fc" data-flip="'+r.id+'">'+(f?esc(r.back):esc(r.front))+'</div><div class="meta" style="text-align:center;color:var(--muted)">'+(f?'背面（点击翻回正面）':'正面（点击看背面）')+'</div><div class="acts" style="justify-content:center"><button data-act="edit" data-id="'+r.id+'">编辑</button><button data-act="del" data-id="'+r.id+'">删除</button></div></div>'}).join('');
     }
     el.innerHTML=html;
   }
 
   function switchTab(t){tab=t;editingId=null;document.querySelectorAll('#tabSeg button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-t')===t)});render()}
-  function showFields(){['notes','resources','logs','reviews'].forEach(function(t){$('f_'+t).classList.toggle('hidden',t!==tab)})}
+  function showFields(){['notes','resources','logs','reviews','cards'].forEach(function(t){var el=$('f_'+t);if(el)el.classList.toggle('hidden',t!==tab)})}
 
   function openModal(r){
     editingId=r?r.id:null;
-    $('modalTitle').textContent=(r?'编辑':'添加')+({notes:'笔记',resources:'资料',logs:'日志',reviews:'复盘'})[tab];
+    var names={notes:'笔记',resources:'资料',logs:'日志',reviews:'复盘',cards:'闪卡'};
+    $('modalTitle').textContent=(r?'编辑':'添加')+names[tab];
     showFields();
     if(tab==='notes'){$('n_title').value=r?r.title:'';$('n_content').value=r?r.content:'';$('n_tags').value=r?r.tags:''}
     if(tab==='resources'){$('r_title').value=r?r.title:'';$('r_type').value=r?r.type:'book';$('r_status').value=r?r.status:'want';$('r_progress').value=r?r.progress:'';$('r_note').value=r?r.note:''}
     if(tab==='logs'){$('l_date').value=r?r.date:today();$('l_content').value=r?r.content:''}
     if(tab==='reviews'){$('v_period').value=r?r.period:'week';$('v_content').value=r?r.content:''}
+    if(tab==='cards'){$('c_front').value=r?r.front:'';$('c_back').value=r?r.back:''}
     $('modal').classList.remove('hidden');
   }
   function closeModal(){$('modal').classList.add('hidden');editingId=null}
@@ -146,6 +160,7 @@
   $('btnCancel').addEventListener('click',closeModal);
   $('modal').addEventListener('click',function(e){if(e.target===this)closeModal()});
   $('list').addEventListener('click',function(e){
+    var f=e.target.closest('[data-flip]');if(f){var id=f.getAttribute('data-flip');flip[id]=!flip[id];render();return}
     var b=e.target.closest('button[data-act]');if(!b)return;
     var id=b.getAttribute('data-id'),act=b.getAttribute('data-act'),arr=data[tab];
     if(act==='del'){data[tab]=arr.filter(function(r){return r.id!==id});save();render()}
@@ -156,11 +171,38 @@
     if(tab==='notes'){var title=$('n_title').value.trim();if(!title&&!$('n_content').value.trim()){alert('请填写内容');return}obj={title:title,content:$('n_content').value,tags:$('n_tags').value.trim()}}
     else if(tab==='resources'){var t2=$('r_title').value.trim();if(!t2){alert('请填写标题');return}obj={title:t2,type:$('r_type').value,status:$('r_status').value,progress:$('r_progress').value.trim(),note:$('r_note').value.trim()}}
     else if(tab==='logs'){var c=$('l_content').value.trim();if(!c){alert('请填写内容');return}obj={date:$('l_date').value||today(),content:c}}
-    else{var c2=$('v_content').value.trim();if(!c2){alert('请填写内容');return}obj={period:$('v_period').value,content:c2}}
+    else if(tab==='reviews'){var c2=$('v_content').value.trim();if(!c2){alert('请填写内容');return}obj={period:$('v_period').value,content:c2}}
+    else{var fr=$('c_front').value.trim(),ba=$('c_back').value.trim();if(!fr||!ba){alert('请填写正反面');return}obj={front:fr,back:ba}}
     if(editingId){data[tab]=data[tab].map(function(r){return r.id===editingId?Object.assign({},r,obj):r})}
     else{obj.id='s'+Date.now();obj.ts=Date.now();data[tab].push(obj)}
     save();closeModal();render();
   });
+
+  // ===== 番茄钟 =====
+  var pomoDur=25, pomoLeft=25*60, pomoTimer=null, pomoRunning=false;
+  function pomoCountKey(){return 'pomodoro_count_'+today()}
+  function renderPomodoro(){
+    var done=Number(localStorage.getItem(pomoCountKey())||0);
+    var mm=String(Math.floor(pomoLeft/60)).padStart(2,'0'), ss=String(pomoLeft%60).padStart(2,'0');
+    $('list').innerHTML='<div class="card timer-box"><div class="timer-num" id="pomoNum">'+mm+':'+ss+'</div><div class="meta">今日完成 '+done+' 个番茄</div><div class="timer-btn"><button class="ghost" id="pomoReset">重置</button><button id="pomoStart">'+(pomoRunning?'暂停':'开始')+'</button></div><div class="timer-dur" id="pomoDur">'+[15,25,45,60].map(function(m){return '<button data-m="'+m+'" class="'+(m===pomoDur?'on':'')+'">'+m+' 分钟</button>'}).join('')+'</div></div>';
+    $('pomoStart').addEventListener('click',togglePomo);
+    $('pomoReset').addEventListener('click',resetPomo);
+    $('pomoDur').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;pomoDur=parseInt(b.getAttribute('data-m'),10);if(!pomoRunning){pomoLeft=pomoDur*60;renderPomodoro()}});
+  }
+  function togglePomo(){
+    if(pomoRunning){clearInterval(pomoTimer);pomoTimer=null;pomoRunning=false;renderPomodoro();return}
+    pomoRunning=true;renderPomodoro();
+    pomoTimer=setInterval(function(){
+      pomoLeft--;
+      var num=$('pomoNum');if(num){var mm=String(Math.floor(pomoLeft/60)).padStart(2,'0'),ss=String(pomoLeft%60).padStart(2,'0');num.textContent=mm+':'+ss}
+      if(pomoLeft<=0){
+        clearInterval(pomoTimer);pomoTimer=null;pomoRunning=false;pomoLeft=pomoDur*60;
+        var k=pomoCountKey();localStorage.setItem(k,String(Number(localStorage.getItem(k)||0)+1));
+        alert('🍅 一个番茄完成！休息一下吧。');renderPomodoro();
+      }
+    },1000);
+  }
+  function resetPomo(){clearInterval(pomoTimer);pomoTimer=null;pomoRunning=false;pomoLeft=pomoDur*60;renderPomodoro()}
 
   load();render();
 })();

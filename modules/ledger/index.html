@@ -249,6 +249,8 @@ textarea.input{min-height:72px;resize:vertical;line-height:1.5}
       <div class="g-top"><span>本月结余目标</span><span id="goalText"></span></div>
       <div class="g-track"><div class="g-fill" id="goalBar" style="width:0%"></div></div>
     </div>
+    <div class="card hidden" id="budgetBox"><div class="g-top"><span>本月支出预算</span><span id="budgetText"></span></div><div class="g-track"><div class="g-fill" id="budgetBar" style="width:0%"></div></div></div>
+    <div class="card hidden" id="billBox"><div class="section-title">🔔 近期账单</div><div id="billRemind"></div></div>
     <div class="quick" id="quickBar"></div>
     <div class="filter-row">
       <div class="seg mini" id="homeSeg"><button data-m="all" class="on">全部</button><button data-m="expense">支出</button><button data-m="income">收入</button></div>
@@ -288,6 +290,27 @@ textarea.input{min-height:72px;resize:vertical;line-height:1.5}
     <div class="card"><div class="section-title">月度明细</div><div id="yearTable"></div></div>
     <div style="margin-top:6px"><button class="btn" id="btnEye" style="width:100%;padding:12px;font-size:15px">🙈 显示金额</button></div>
   </div>
+  <div id="tab-finance" class="page">
+    <div class="app-top"><h1 class="app-title">📈 金融</h1></div>
+    <div class="stat-grid" id="finStats"></div>
+    <div class="card"><div class="section-title">持仓跟踪</div>
+      <div id="holdList"></div>
+      <button class="btn" id="btnHoldAdd" style="width:100%;margin-top:8px">＋ 添加持仓</button>
+    </div>
+    <div class="card"><div class="section-title">资讯与决策记录</div>
+      <div id="finNoteList"></div>
+      <div class="seg-row"><input class="input" id="finNoteInput" placeholder="记录官方/权威数据、新闻及你的决策…"></div>
+      <button class="btn" id="btnFinNoteAdd" style="width:100%;margin-top:8px">添加记录</button>
+    </div>
+    <p class="note-text" style="margin-top:10px">持仓与笔记随账本一起加密同步；现价需手动更新；数据仅供参考，不构成投资建议。</p>
+  </div>
+  <div id="finModal" class="modal hidden"><div class="modal-box">
+    <h3 style="margin:0 0 14px">添加 / 编辑持仓</h3>
+    <div class="seg-row" style="margin-bottom:8px"><input class="input" id="fh_name" placeholder="名称 / 标的（如 沪深300ETF）"><input class="input" id="fh_code" placeholder="代码（可选）"></div>
+    <div class="seg-row" style="margin-bottom:8px"><input class="input" id="fh_qty" inputmode="decimal" placeholder="数量"><input class="input" id="fh_cost" inputmode="decimal" placeholder="成本价"></div>
+    <div class="seg-row" style="margin-bottom:12px"><input class="input" id="fh_price" inputmode="decimal" placeholder="现价（手动更新）"></div>
+    <div style="display:flex;gap:10px"><button class="btn" id="fhCancel" style="background:var(--fill);color:var(--text)">取消</button><button class="btn" id="fhSave">保存</button></div>
+  </div></div>
   <div id="tab-settings" class="page">
     <div class="app-top"><h1 class="app-title">⚙️ 设置</h1></div>
     <div class="card"><div class="section-title">外观主题</div>
@@ -304,6 +327,16 @@ textarea.input{min-height:72px;resize:vertical;line-height:1.5}
     <div class="card"><div class="section-title">每月结余目标</div>
       <div class="seg-row"><input class="input" type="text" inputmode="decimal" id="goalInput" placeholder="如 2000（0 表示不设目标）"><button class="btn btn-primary" id="btnGoalSave">保存</button></div>
       <p class="note-text">结余 = 收入 − 支出；进度会在首页和分析页显示。</p>
+    </div>
+    <div class="card"><div class="section-title">月度支出预算（超支提醒）</div>
+      <div class="seg-row"><input class="input" type="text" inputmode="decimal" id="budgetInput" placeholder="如 3000（0 表示不设）"><button class="btn btn-primary" id="btnBudgetSave">保存</button></div>
+      <p class="note-text">本月支出达到预算时，首页会提示超支。</p>
+    </div>
+    <div class="card"><div class="section-title">周期账单（到期提醒）</div>
+      <div id="billList"></div>
+      <div class="seg-row"><input class="input" id="billName" placeholder="名称（如 房租）"><input class="input" id="billAmount" inputmode="decimal" placeholder="金额"></div>
+      <div class="seg-row"><select class="input" id="billCycle"><option value="monthly">每月</option><option value="yearly">每年</option><option value="once">一次性</option></select><input class="input" type="date" id="billDate"></div>
+      <button class="btn" id="btnBillAdd" style="margin-top:8px">添加账单</button>
     </div>
     <div class="card"><div class="section-title">支出分类（长按拖动排序）</div>
       <div id="chipsExp" class="cat-grid"></div>
@@ -343,6 +376,7 @@ textarea.input{min-height:72px;resize:vertical;line-height:1.5}
     <button data-tab="home" class="on">📒 记账</button>
     <button data-tab="analysis">📊 分析</button>
     <button data-tab="year">📅 年度</button>
+    <button data-tab="finance">📈 金融</button>
     <button data-tab="settings">⚙️ 设置</button>
   </nav>
   <button class="fab" id="fab" title="记一笔">＋</button>
@@ -427,7 +461,7 @@ function randomB64(n){var u=crypto.getRandomValues(new Uint8Array(n));return buf
 function deriveKey(pw,saltB64,iter){var enc=new TextEncoder();return crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveKey']).then(function(km){return crypto.subtle.deriveKey({name:'PBKDF2',salt:b64ToBuf(saltB64),iterations:iter,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])})}
 function encryptStr(k,s){var iv=crypto.getRandomValues(new Uint8Array(12));var enc=new TextEncoder();return crypto.subtle.encrypt({name:'AES-GCM',iv:iv},k,enc.encode(s)).then(function(ct){return {iv:bufToB64(iv),data:bufToB64(new Uint8Array(ct))}})}
 function decryptStr(k,ivB64,dataB64){return crypto.subtle.decrypt({name:'AES-GCM',iv:b64ToBuf(ivB64)},k,b64ToBuf(dataB64)).then(function(pt){return new TextDecoder().decode(pt)})}
-function normalizeSettings(s){s=s||{};var out={theme:s.theme||'auto',goal:Number(s.goal)||0,customCats:s.customCats||{expense:[],income:[]},quick:Array.isArray(s.quick)?s.quick:[],catOrder:s.catOrder||{expense:[],income:[]},hide:s.hide!==false};if(!Array.isArray(out.customCats.expense))out.customCats.expense=[];if(!Array.isArray(out.customCats.income))out.customCats.income=[];if(!Array.isArray(out.catOrder.expense))out.catOrder.expense=[];if(!Array.isArray(out.catOrder.income))out.catOrder.income=[];return out}
+function normalizeSettings(s){s=s||{};var out={theme:s.theme||'auto',goal:Number(s.goal)||0,monthBudget:Number(s.monthBudget)||0,bills:Array.isArray(s.bills)?s.bills:[],holdings:Array.isArray(s.holdings)?s.holdings:[],financeNotes:Array.isArray(s.financeNotes)?s.financeNotes:[],customCats:s.customCats||{expense:[],income:[]},quick:Array.isArray(s.quick)?s.quick:[],catOrder:s.catOrder||{expense:[],income:[]},hide:s.hide!==false};if(!Array.isArray(out.customCats.expense))out.customCats.expense=[];if(!Array.isArray(out.customCats.income))out.customCats.income=[];if(!Array.isArray(out.catOrder.expense))out.catOrder.expense=[];if(!Array.isArray(out.catOrder.income))out.catOrder.income=[];return out}
 function loadPayload(json){var data=JSON.parse(json);if(Array.isArray(data)){records=data;settings=normalizeSettings(null)}else{records=Array.isArray(data.records)?data.records:[];settings=normalizeSettings(data.settings)}}
 function saveDb(){return encryptStr(key,JSON.stringify({records:records,settings:settings})).then(function(r){db.iv=r.iv;db.data=r.data;db.updatedAt=Date.now();localStorage.setItem(LSKEY,JSON.stringify(db));localStorage.setItem('ledger_dirty','1');syncAfterSave()})}
 var syncTimer=null;function syncAfterSave(){try{if(!(window.LifeHubSync&&window.LifeHubSync.enabled()))return;clearTimeout(syncTimer);syncTimer=setTimeout(syncPushNow,800)}catch(e){}}function syncPushNow(){syncTimer=null;try{if(!(window.LifeHubSync&&window.LifeHubSync.enabled())){setSyncState('未配置同步','');return}var raw=localStorage.getItem(LSKEY);if(!raw)return;var snap=JSON.parse(raw);var payload={app:'jizhangben',v:1,salt:snap.salt,iter:snap.iter,iv:snap.iv,data:snap.data};window.LifeHubSync.pushLedger(payload).then(function(){localStorage.removeItem('ledger_dirty');setSyncState('已推送到云端',new Date().toLocaleTimeString())}).catch(function(e){setSyncState('推送失败：'+(e&&e.message||'网络错误'),new Date().toLocaleTimeString())})}catch(e){setSyncState('推送失败：'+e.message,new Date().toLocaleTimeString())}}
@@ -440,11 +474,11 @@ function lockApp(){key=null;records=[];db=null;settings=normalizeSettings(null);
 function doExport(){if(!db){toast('请先解锁');return}var out={app:'jizhangben',v:1,salt:db.salt,iter:db.iter,iv:db.iv,data:db.data,exportedAt:new Date().toISOString()};var blob=new Blob([JSON.stringify(out,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);var d=new Date();a.download='账本备份-'+d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'.json';document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},1500);toast('已导出加密备份')}
 function effectiveTheme(){var t=localStorage.getItem(THEMEKEY)||'auto';if(t==='dark')return 'dark';if(t==='light')return 'light';return (window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'}
 function applyTheme(){document.documentElement.setAttribute('data-theme',effectiveTheme())}
-function switchTab(t,animate){activeTab=t;var i=pageIndex[t]||0;var strip=$('pagesStrip');strip.style.transition=animate?'transform .3s cubic-bezier(.22,.61,.36,1)':'none';strip.style.transform='translateX('+(-i*pageWidth())+'px)';document.querySelectorAll('#tabbar button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-tab')===t)});if(t==='analysis')renderAnalysis();if(t==='year')renderYear();if(t==='settings')renderSettings()}
+function switchTab(t,animate){activeTab=t;var i=pageIndex[t]||0;var strip=$('pagesStrip');strip.style.transition=animate?'transform .3s cubic-bezier(.22,.61,.36,1)':'none';strip.style.transform='translateX('+(-i*pageWidth())+'px)';document.querySelectorAll('#tabbar button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-tab')===t)});if(t==='analysis')renderAnalysis();if(t==='year')renderYear();if(t==='finance')renderFinance();if(t==='settings')renderSettings()}
 function renderAll(){renderSummary();renderTree();renderCategories();updateGoal();renderQuick()}
 function monthRecords(mk){return records.filter(function(r){return r.date.indexOf(mk)===0})}
 function sumsOf(mk){var e=0,i=0;monthRecords(mk).forEach(function(r){if(r.type==='expense')e+=Number(r.amount);else i+=Number(r.amount)});return {e:e,i:i,b:i-e}}
-function renderSummary(){var s=sumsOf(cur);$('sumExp').textContent=fmt(s.e);$('sumInc').textContent=fmt(s.i);var b=$('sumBal');b.textContent=fmt(s.b);b.className='value '+(s.b<0?'exp':'inc')}
+function renderSummary(){var s=sumsOf(cur);$('sumExp').textContent=fmt(s.e);$('sumInc').textContent=fmt(s.i);var b=$('sumBal');b.textContent=fmt(s.b);b.className='value '+(s.b<0?'exp':'inc');renderBudget();renderBills()}
 function updateGoal(){renderGoal('',cur);renderGoal('A',cur)}
 function renderGoal(prefix,mk){var box=$('goalBox'+prefix),bar=$('goalBar'+prefix),txt=$('goalText'+prefix);var g=Number(settings.goal)||0;var s=sumsOf(mk);if(g<=0){box.classList.add('hidden');return}box.classList.remove('hidden');var pct=Math.max(0,Math.min(100,Math.round(s.b/g*100)));bar.style.width=pct+'%';txt.textContent=fmt(s.b)+' / '+fmt(g)+(s.b>=g?' · 已达成 🎉':(s.b>=0?' · 还差 '+fmt(g-s.b):' · 当前为负'))}
 function renderCategories(){var sel=$('category');sel.innerHTML=catsOf(type).map(function(c){return '<option value="'+esc(c)+'">'+emojiFor(c)+' '+esc(c)+'</option>'}).join('')}
@@ -510,12 +544,30 @@ function finishDrag(t){unmarkDragging();if(!drag)return;if(!settings.catOrder)se
 function markDragging(cat){unmarkDragging();var cells=document.querySelectorAll('.cat-cell');for(var i=0;i<cells.length;i++){if(cells[i].getAttribute('data-cat')===cat){cells[i].classList.add('dragging')}}}
 function unmarkDragging(){var cells=document.querySelectorAll('.cat-cell.dragging');for(var i=0;i<cells.length;i++){cells[i].classList.remove('dragging')}}
 
-function renderSettings(){var t=localStorage.getItem(THEMEKEY)||'auto';['auto','light','dark'].forEach(function(x){$('th-'+x).classList.toggle('on',t===x)});$('goalInput').value=Number(settings.goal)||'';$('hideToggle').checked=!!settings.hide;renderCatChips('expense');renderCatChips('income');renderQuickList();renderQuickCat();updateEye();renderSyncStatus()}
+function renderSettings(){var t=localStorage.getItem(THEMEKEY)||'auto';['auto','light','dark'].forEach(function(x){$('th-'+x).classList.toggle('on',t===x)});$('goalInput').value=Number(settings.goal)||'';if($('budgetInput'))$('budgetInput').value=Number(settings.monthBudget)||'';$('hideToggle').checked=!!settings.hide;renderCatChips('expense');renderCatChips('income');renderQuickList();renderQuickCat();renderBillSettings();updateEye();renderSyncStatus()}
 function renderCatChips(t){renderCatOrder(t,catsOf(t))}
 function addCat(t){var inp=t==='expense'?$('newCatExp'):$('newCatInc');var v=inp.value.trim();if(!v){toast('请输入分类名');return}if(catsOf(t).indexOf(v)>=0){toast('分类已存在');return}settings.customCats[t].push(v);inp.value='';saveDb().then(function(){renderSettings();renderCategories()})}
 function removeCat(t,c){settings.customCats[t]=settings.customCats[t].filter(function(x){return x!==c});saveDb().then(function(){renderSettings();renderCategories()})}
 function setTheme(t){localStorage.setItem(THEMEKEY,t);applyTheme();renderSettings()}
 function saveGoal(){var v=parseFloat($('goalInput').value);v=isNaN(v)||v<0?0:v;settings.goal=v;saveDb().then(function(){toast('目标已保存');renderSettings();refresh()})}
+function saveBudget(){var v=parseFloat($('budgetInput').value);v=isNaN(v)||v<0?0:v;settings.monthBudget=v;saveDb().then(function(){toast('预算已保存');renderSettings();refresh()})}
+function renderBudget(){var box=$('budgetBox');if(!box)return;var e=sumsOf(cur).e;if(!settings.monthBudget){box.classList.add('hidden');return}box.classList.remove('hidden');var pct=Math.min(100,Math.round(e/settings.monthBudget*100));var over=e>settings.monthBudget;$('budgetBar').style.width=pct+'%';$('budgetBar').style.background=over?'var(--red)':'var(--green)';$('budgetText').textContent=fmt(e)+' / '+fmt(settings.monthBudget)+(over?' · 已超支':'')}
+function billDays(b){if(!b.date)return null;var dd=new Date(b.date+'T00:00:00');var now=new Date();now.setHours(0,0,0,0);return Math.round((dd-now)/86400000)}
+function billDateLabel(d){if(d<0)return '已过期 '+Math.abs(d)+' 天';if(d===0)return '今天到期';if(d===1)return '明天到期';return d+' 天后'}
+function renderBills(){var box=$('billBox');if(!box)return;var bills=settings.bills||[];if(!bills.length){box.classList.add('hidden');return}var soon=bills.filter(function(b){var d=billDays(b);return d!=null&&d<=7}).sort(function(a,b){return a.date<b.date?-1:1});if(!soon.length){box.classList.add('hidden');return}box.classList.remove('hidden');$('billRemind').innerHTML=soon.map(function(b){var d=billDays(b);var over=d<0;return '<div style="display:flex;justify-content:space-between;gap:8px;padding:6px 0;font-size:14px"><span>'+esc(b.name)+' '+fmt(Number(b.amount)||0)+'</span><span style="color:'+(over?'var(--red)':'var(--sub)')+'">'+billDateLabel(d)+'</span></div>'}).join('')}
+function renderBillSettings(){var el=$('billList');if(!el)return;var bills=settings.bills||[];el.innerHTML=bills.length?bills.map(function(b,i){return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0"><span style="flex:1">'+esc(b.name)+' <span style="color:var(--muted)">'+fmt(Number(b.amount)||0)+' · '+esc(b.date)+'</span></span><button class="btn" data-bi="'+i+'" style="flex:none;padding:4px 10px">删除</button></div>'}).join(''):'<p class="note-text">暂无账单</p>'}
+function addBill(){var n=$('billName').value.trim(),a=parseFloat($('billAmount').value),d=$('billDate').value;if(!n||isNaN(a)||a<=0){toast('请填写名称和金额');return}if(!d){toast('请选择日期');return}settings.bills=settings.bills||[];settings.bills.push({id:'b'+Date.now(),name:n,amount:a,cycle:$('billCycle').value,date:d});$('billName').value='';$('billAmount').value='';$('billDate').value='';saveDb().then(function(){toast('已添加账单');renderSettings();refresh()})}
+$('btnBudgetSave').addEventListener('click',saveBudget);
+$('btnBillAdd').addEventListener('click',addBill);
+$('billList').addEventListener('click',function(e){var b=e.target.closest('button[data-bi]');if(!b)return;settings.bills.splice(parseInt(b.getAttribute('data-bi'),10),1);saveDb().then(function(){renderSettings();refresh()})});
+var finEditIdx=-1;
+function renderFinance(){var hs=settings.holdings||[];var tc=0,tm=0;hs.forEach(function(h){tc+=Number(h.qty)*Number(h.cost);tm+=Number(h.qty)*Number(h.price)});var pl=tm-tc,pct=tc>0?Math.round(pl/tc*100):0;var m=mk();$('finStats').innerHTML='<div class="stat"><div class="stat-l">总市值</div><div class="stat-v'+m+'">'+fmt(tm)+'</div></div><div class="stat"><div class="stat-l">总成本</div><div class="stat-v'+m+'">'+fmt(tc)+'</div></div><div class="stat"><div class="stat-l">浮动盈亏</div><div class="stat-v '+(pl>=0?'inc':'exp')+m+'">'+fmt(pl)+'</div></div><div class="stat"><div class="stat-l">盈亏率</div><div class="stat-v '+(pl>=0?'inc':'exp')+m+'">'+(pl>=0?'+':'')+pct+'%</div></div>';$('holdList').innerHTML=hs.length?hs.map(function(h,i){var mv=Number(h.qty)*Number(h.price),c=Number(h.qty)*Number(h.cost),p=mv-c,pc=c>0?Math.round(p/c*100):0;return '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="flex:1;min-width:0"><div style="font-size:14.5px;font-weight:600">'+esc(h.name)+(h.code?(' <span style="color:var(--muted);font-size:12px">'+esc(h.code)+'</span>'):'')+'</div><div style="font-size:12px;color:var(--muted)">'+h.qty+' 份 · 成本 '+fmt(Number(h.cost))+' · 现价 '+fmt(Number(h.price))+'</div></div><div style="text-align:right"><div style="font-size:14px;color:'+(p>=0?'var(--green)':'var(--red)')+'">'+fmt(p)+'</div><div style="font-size:11px;color:'+(p>=0?'var(--green)':'var(--red)')+'">'+(p>=0?'+':'')+pc+'%</div></div><button class="btn" data-hi="'+i+'" style="flex:none;padding:4px 8px;font-size:12px">编辑</button><button class="btn" data-hd="'+i+'" style="flex:none;padding:4px 8px;font-size:12px">删</button></div>'}).join(''):'<p class="note-text">暂无持仓，点下方添加。</p>';var ns=settings.financeNotes||[];$('finNoteList').innerHTML=ns.length?ns.map(function(nn,i){return '<div style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)"><div style="flex:1"><div style="font-size:13.5px">'+esc(nn.content)+'</div><div style="font-size:11px;color:var(--muted)">'+esc(nn.date)+'</div></div><button class="btn" data-nd="'+i+'" style="flex:none;padding:4px 8px;font-size:12px">删</button></div>'}).join(''):'<p class="note-text">暂无记录。</p>'}
+$('btnHoldAdd').addEventListener('click',function(){finEditIdx=-1;$('fh_name').value='';$('fh_code').value='';$('fh_qty').value='';$('fh_cost').value='';$('fh_price').value='';$('finModal').classList.remove('hidden')});
+$('fhCancel').addEventListener('click',function(){$('finModal').classList.add('hidden')});
+$('fhSave').addEventListener('click',function(){var name=$('fh_name').value.trim(),code=$('fh_code').value.trim(),qty=parseFloat($('fh_qty').value),cost=parseFloat($('fh_cost').value),price=parseFloat($('fh_price').value);if(!name||isNaN(qty)||qty<=0||isNaN(cost)||cost<0||isNaN(price)||price<0){toast('请正确填写名称、数量、成本、现价');return}settings.holdings=settings.holdings||[];var obj={name:name,code:code,qty:qty,cost:cost,price:price};if(finEditIdx>=0){settings.holdings[finEditIdx]=Object.assign({},settings.holdings[finEditIdx],obj)}else{obj.id='h'+Date.now();settings.holdings.push(obj)}saveDb().then(function(){toast('已保存');$('finModal').classList.add('hidden');renderFinance()})});
+$('holdList').addEventListener('click',function(e){var b=e.target.closest('button[data-hi],button[data-hd]');if(!b)return;var i=parseInt(b.getAttribute('data-hi')||b.getAttribute('data-hd'),10);var h=settings.holdings&&settings.holdings[i];if(!h)return;if(b.hasAttribute('data-hd')){settings.holdings.splice(i,1);saveDb().then(renderFinance)}else{finEditIdx=i;$('fh_name').value=h.name;$('fh_code').value=h.code||'';$('fh_qty').value=h.qty;$('fh_cost').value=h.cost;$('fh_price').value=h.price;$('finModal').classList.remove('hidden')}});
+$('btnFinNoteAdd').addEventListener('click',function(){var v=$('finNoteInput').value.trim();if(!v){toast('请输入内容');return}settings.financeNotes=settings.financeNotes||[];settings.financeNotes.push({id:'n'+Date.now(),date:todayStr(),content:v});$('finNoteInput').value='';saveDb().then(renderFinance)});
+$('finNoteList').addEventListener('click',function(e){var b=e.target.closest('button[data-nd]');if(!b)return;settings.financeNotes.splice(parseInt(b.getAttribute('data-nd'),10),1);saveDb().then(renderFinance)});
 function doImportWith(fileEl,pwEl){var f=fileEl.files&&fileEl.files[0];var p=pwEl.value;if(!f){toast('请选择备份文件');return}if(!p){toast('请输入主密码');return}fileEl.value='';importBackup(f,p).then(function(){toast('导入成功');$('importModal').classList.add('hidden');enterApp()}).catch(function(err){toast(err.message||'导入失败')})}
 function openClearModal(){$('clearPw').value='';$('clearModal').classList.remove('hidden');setTimeout(function(){$('clearPw').focus()},60)}
 function verifyPassword(pw){var raw=localStorage.getItem(LSKEY);if(!raw)return Promise.resolve(true);var d2=JSON.parse(raw);return deriveKey(pw,d2.salt,d2.iter).then(function(k){return decryptStr(k,d2.iv,d2.data).then(function(){return true})}).catch(function(){return false})}
@@ -570,10 +622,10 @@ $('hideToggle').addEventListener('change',function(){settings.hide=this.checked;
 $('homeSeg').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;homeFilter=b.getAttribute('data-m');updateSeg($('homeSeg'),homeFilter);renderTree()});
 var dragP=null;var suppressClick=false;
 function pageStart(e){var t=e.touches[0];dragP={sx:t.clientX,sy:t.clientY,i:pageIndex[activeTab]||0,w:pageWidth(),active:false,lx:t.clientX,lt:Date.now(),vx:0}}
-function pageMove(e){if(!dragP)return;var t=e.touches[0];var dx=t.clientX-dragP.sx,dy=t.clientY-dragP.sy;if(!dragP.active){if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>10){dragP.active=true;suppressClick=true;dragP.i=pageIndex[activeTab]||0;dragP.w=pageWidth()}else if(Math.abs(dy)>10){dragP=null;return}else return}var now=Date.now();var dt=now-dragP.lt;if(dt>0){dragP.vx=(t.clientX-dragP.lx)/dt}dragP.lx=t.clientX;dragP.lt=now;var off=dx;if(dragP.i===0&&dx>0){off=dx*0.35}if(dragP.i===3&&dx<0){off=dx*0.35}$('pagesStrip').style.transition='none';$('pagesStrip').style.transform='translateX('+(-dragP.i*dragP.w+off)+'px)'}
-function pageEnd(e){if(!dragP)return;var t=e.changedTouches[0];var dx=t.clientX-dragP.sx;var w=dragP.w;var i=dragP.i;var active=dragP.active;var target=i;if(active){if(Math.abs(dx)>w*0.25||Math.abs(dragP.vx)>0.5){if(dx<0&&i<3)target=i+1;else if(dx>0&&i>0)target=i-1}var order=['home','analysis','year','settings'];dragP=null;switchTab(order[target],true)}else{dragP=null}setTimeout(function(){suppressClick=false},500)}
+function pageMove(e){if(!dragP)return;var t=e.touches[0];var dx=t.clientX-dragP.sx,dy=t.clientY-dragP.sy;if(!dragP.active){if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>10){dragP.active=true;suppressClick=true;dragP.i=pageIndex[activeTab]||0;dragP.w=pageWidth()}else if(Math.abs(dy)>10){dragP=null;return}else return}var now=Date.now();var dt=now-dragP.lt;if(dt>0){dragP.vx=(t.clientX-dragP.lx)/dt}dragP.lx=t.clientX;dragP.lt=now;var off=dx;if(dragP.i===0&&dx>0){off=dx*0.35}if(dragP.i===4&&dx<0){off=dx*0.35}$('pagesStrip').style.transition='none';$('pagesStrip').style.transform='translateX('+(-dragP.i*dragP.w+off)+'px)'}
+function pageEnd(e){if(!dragP)return;var t=e.changedTouches[0];var dx=t.clientX-dragP.sx;var w=dragP.w;var i=dragP.i;var active=dragP.active;var target=i;if(active){if(Math.abs(dx)>w*0.25||Math.abs(dragP.vx)>0.5){if(dx<0&&i<4)target=i+1;else if(dx>0&&i>0)target=i-1}var order=['home','analysis','year','finance','settings'];dragP=null;switchTab(order[target],true)}else{dragP=null}setTimeout(function(){suppressClick=false},500)}
 function pageWidth(){var p=$('pages');return p?p.offsetWidth:360}
-var pageIndex={home:0,analysis:1,year:2,settings:3};
+var pageIndex={home:0,analysis:1,year:2,finance:3,settings:4};
 $('pages').addEventListener('touchstart',pageStart,{passive:true});
 $('pages').addEventListener('touchmove',pageMove,{passive:true});
 $('pages').addEventListener('touchend',pageEnd,{passive:true});
