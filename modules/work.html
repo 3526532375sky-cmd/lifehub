@@ -7,7 +7,7 @@
 <style>
   :root{
     --bg:#f4f5f7; --card:#ffffff; --text:#1f2430; --sub:#6b7280; --muted:#9aa1ad;
-    --border:#e6e9ee; --fill:#eef1f6; --violet:#8b5cf6; --blue:#3b82f6; --red:#e5484d;
+    --border:#e6e9ee; --fill:#eef1f6; --violet:#8b5cf6; --blue:#3b82f6; --green:#2f9e63; --red:#e5484d;
     --shadow:0 1px 2px rgba(16,24,40,.06),0 4px 16px rgba(16,24,40,.05);
   }
   @media (prefers-color-scheme: dark){
@@ -15,17 +15,16 @@
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}
-  .wrap{max-width:760px;margin:0 auto;padding:24px 20px 100px;}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 20px 110px;}
   a.back{color:var(--blue);text-decoration:none;font-size:14px;}
   .head{margin:14px 0 18px;} .head h1{margin:0 0 6px;font-size:26px;} .head p{margin:0;color:var(--sub);font-size:14px;line-height:1.7;}
   .seg{display:flex;background:var(--fill);border-radius:10px;padding:3px;gap:3px;margin-bottom:14px;}
-  .seg button{flex:1;border:none;background:transparent;padding:9px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--sub);}
+  .seg button{flex:1;border:none;background:transparent;padding:9px 4px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--sub);}
   .seg button.on{background:var(--card);font-weight:600;color:var(--text);box-shadow:var(--shadow);}
   .card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow);}
   .card h3{margin:0 0 8px;font-size:15.5px;}
   .card p{margin:0;font-size:14px;line-height:1.7;white-space:pre-wrap;color:var(--text);}
   .meta{font-size:12px;color:var(--muted);margin-top:8px;}
-  .badge{font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600;background:var(--fill);color:var(--sub);}
   .acts{margin-top:10px;display:flex;gap:8px;}
   .acts button{border:none;background:var(--fill);border-radius:8px;padding:6px 10px;font-size:12.5px;cursor:pointer;color:var(--sub);}
   .empty{color:var(--muted);font-size:13.5px;text-align:center;padding:16px 0;}
@@ -40,6 +39,20 @@
   .btn{width:100%;padding:12px;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;background:var(--violet);color:#fff;}
   .btn.ghost{background:var(--fill);color:var(--text);}
   .hidden{display:none;}
+  /* 清单 */
+  .ck-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;}
+  .ck-top strong{font-size:15px;}
+  .ck-prog{font-size:12px;color:var(--green);font-weight:600;}
+  .ck-item{display:flex;align-items:center;gap:10px;padding:7px 4px;border-radius:8px;cursor:pointer;}
+  .ck-box{font-size:18px;line-height:1;flex:none;color:var(--sub);}
+  .ck-box.on{color:var(--green);}
+  .ck-txt{flex:1;font-size:14.5px;line-height:1.5;}
+  .ck-txt.done{color:var(--muted);text-decoration:line-through;}
+  .ck-x{border:none;background:none;color:var(--muted);font-size:14px;cursor:pointer;padding:4px;flex:none;}
+  .ck-add{display:flex;gap:8px;margin-top:10px;}
+  .ck-add input{flex:1;padding:9px 12px;font-size:14px;}
+  .ck-add button{flex:none;border:none;background:var(--fill);color:var(--text);border-radius:10px;padding:0 14px;font-size:14px;cursor:pointer;}
+  .ck-del{margin-top:10px;border:none;background:none;color:var(--muted);font-size:12.5px;cursor:pointer;padding:4px;}
 </style>
 </head>
 <body>
@@ -47,12 +60,13 @@
   <a class="back" href="../index.html">← 返回首页</a>
   <div class="head">
     <h1>💼 工作</h1>
-    <p>把工作流程固化成 SOP，并记录执行中的问题与经验。</p>
+    <p>固化工作 SOP，记录执行中的问题与经验，并用清单逐项核对。</p>
   </div>
 
   <div class="seg" id="tabSeg">
     <button data-t="sops" class="on">SOP</button>
     <button data-t="logs">相关记录</button>
+    <button data-t="checklists">清单</button>
   </div>
 
   <div id="list"></div>
@@ -73,6 +87,10 @@
       <div class="field"><label>关联 SOP（可选）</label><select id="l_ref"><option value="">（不关联）</option></select></div>
       <div class="field"><label>内容</label><textarea id="l_content" placeholder="执行中的问题、经验、改进想法…"></textarea></div>
     </div>
+    <div id="f_checklists" class="hidden">
+      <div class="field"><label>清单标题 *</label><input id="c_title" placeholder="如：开工前核对清单"></div>
+      <div class="field"><label>清单项（每行一项）</label><textarea id="c_items" placeholder="核对工器具&#10;确认工作票&#10;…"></textarea></div>
+    </div>
     <div style="display:flex;gap:10px">
       <button class="btn ghost" id="btnCancel">取消</button>
       <button class="btn" id="btnSave">保存</button>
@@ -84,10 +102,10 @@
 (function(){
   'use strict';
   var KEY='work_data_v1';
-  var data={sops:[],logs:[]};
+  var data={sops:[],logs:[],checklists:[]};
   var tab='sops', editingId=null;
   var $=function(id){return document.getElementById(id)};
-  function load(){try{var o=JSON.parse(localStorage.getItem(KEY))||{};data={sops:o.sops||[],logs:o.logs||[]}}catch(e){}}
+  function load(){try{var o=JSON.parse(localStorage.getItem(KEY))||{};data={sops:o.sops||[],logs:o.logs||[],checklists:o.checklists||[]}}catch(e){}}
   function save(){localStorage.setItem(KEY,JSON.stringify(data))}
   function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
   function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
@@ -99,26 +117,33 @@
     var html='';
     if(tab==='sops'){
       html=arr.map(function(r){return '<div class="card"><h3>📌 '+esc(r.title)+'</h3><p>'+esc(r.content)+'</p>'+(r.tag?('<div class="meta">'+esc(r.tag)+'</div>'):'')+'<div class="acts"><button data-act="edit" data-id="'+r.id+'">编辑</button><button data-act="del" data-id="'+r.id+'">删除</button></div></div>'}).join('');
-    }else{
+    }else if(tab==='logs'){
       html=arr.map(function(r){return '<div class="card"><div class="meta">'+esc(r.date)+(r.refSop?(' · 关联：'+esc(sopName(r.refSop))):'')+'</div><p>'+esc(r.content)+'</p><div class="acts"><button data-act="edit" data-id="'+r.id+'">编辑</button><button data-act="del" data-id="'+r.id+'">删除</button></div></div>'}).join('');
+    }else{
+      html=arr.map(function(c){
+        var total=c.items.length, done=c.items.filter(function(i){return i.done}).length;
+        var items=c.items.map(function(it,idx){
+          return '<div class="ck-item" data-ck="toggle" data-id="'+c.id+'" data-i="'+idx+'"><span class="ck-box'+(it.done?' on':'')+'">'+(it.done?'☑':'☐')+'</span><span class="ck-txt'+(it.done?' done':'')+'">'+esc(it.t)+'</span><button class="ck-x" data-ck="delitem" data-id="'+c.id+'" data-i="'+idx+'">✕</button></div>';
+        }).join('');
+        return '<div class="card"><div class="ck-top"><strong>'+esc(c.title)+'</strong><span class="ck-prog">'+done+'/'+total+'</span></div>'+items+'<div class="ck-add"><input data-ck="input" data-id="'+c.id+'" placeholder="添加一项，回车确认"><button data-ck="add" data-id="'+c.id+'">添加</button></div><button class="ck-del" data-ck="del" data-id="'+c.id+'">删除整个清单</button></div>';
+      }).join('');
     }
     el.innerHTML=html;
   }
 
   function switchTab(t){tab=t;editingId=null;document.querySelectorAll('#tabSeg button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-t')===t)});render()}
-  function fillRefSelect(){
-    var sel=$('l_ref');var cur=sel.value;
-    sel.innerHTML='<option value="">（不关联）</option>'+data.sops.map(function(s){return '<option value="'+s.id+'">'+esc(s.title)+'</option>'}).join('');
-    if(cur&&data.sops.some(function(s){return s.id===cur}))sel.value=cur;
-  }
+  function fillRefSelect(){var sel=$('l_ref');var cur=sel.value;sel.innerHTML='<option value="">（不关联）</option>'+data.sops.map(function(s){return '<option value="'+s.id+'">'+esc(s.title)+'</option>'}).join('');if(cur&&data.sops.some(function(s){return s.id===cur}))sel.value=cur;}
 
   function openModal(r){
     editingId=r?r.id:null;
-    $('modalTitle').textContent=(r?'编辑':'添加')+(tab==='sops'?' SOP':'记录');
+    var names={sops:' SOP',logs:'记录',checklists:'清单'};
+    $('modalTitle').textContent=(r?'编辑':'添加')+names[tab];
     $('f_sops').classList.toggle('hidden',tab!=='sops');
     $('f_logs').classList.toggle('hidden',tab!=='logs');
+    $('f_checklists').classList.toggle('hidden',tab!=='checklists');
     if(tab==='sops'){$('s_title').value=r?r.title:'';$('s_content').value=r?r.content:'';$('s_tag').value=r?r.tag:''}
-    else{fillRefSelect();$('l_date').value=r?r.date:today();$('l_ref').value=r?r.refSop:'';$('l_content').value=r?r.content:''}
+    else if(tab==='logs'){fillRefSelect();$('l_date').value=r?r.date:today();$('l_ref').value=r?r.refSop:'';$('l_content').value=r?r.content:''}
+    else{$('c_title').value=r?r.title:'';$('c_items').value=r?r.items.map(function(i){return i.t}).join('\n'):''}
     $('modal').classList.remove('hidden');
   }
   function closeModal(){$('modal').classList.add('hidden');editingId=null}
@@ -127,16 +152,42 @@
   $('fab').addEventListener('click',function(){openModal(null)});
   $('btnCancel').addEventListener('click',closeModal);
   $('modal').addEventListener('click',function(e){if(e.target===this)closeModal()});
+
+  // 清单交互（事件委托）
   $('list').addEventListener('click',function(e){
-    var b=e.target.closest('button[data-act]');if(!b)return;
+    var t=e.target;
+    var ck=t.closest('[data-ck]');
+    if(ck){
+      var act=ck.getAttribute('data-ck'), id=ck.getAttribute('data-id'), i=ck.getAttribute('data-i');
+      if(act==='toggle'){var c=data.checklists.find(function(x){return x.id===id});if(c&&c.items[i]){c.items[i].done=!c.items[i].done;save();render()}}
+      else if(act==='delitem'){var c2=data.checklists.find(function(x){return x.id===id});if(c2){c2.items.splice(parseInt(i,10),1);save();render()}}
+      else if(act==='del'){data.checklists=data.checklists.filter(function(x){return x.id!==id});save();render()}
+      else if(act==='add'){addItem(id)}
+      return;
+    }
+    // 普通编辑/删除（SOP 与记录）
+    var b=t.closest('button[data-act]');if(!b)return;
     var id=b.getAttribute('data-id'),act=b.getAttribute('data-act'),arr=data[tab];
     if(act==='del'){data[tab]=arr.filter(function(r){return r.id!==id});save();render()}
     else{var r=arr.find(function(x){return x.id===id});if(r)openModal(r)}
   });
+  $('list').addEventListener('keydown',function(e){
+    if(e.key==='Enter'&&e.target.getAttribute&&e.target.getAttribute('data-ck')==='input'){e.preventDefault();addItem(e.target.getAttribute('data-id'))}
+  });
+
+  function addItem(id){
+    var inp=document.querySelector('input[data-ck="input"][data-id="'+id+'"]');
+    var v=inp?inp.value.trim():'';
+    if(!v)return;
+    var c=data.checklists.find(function(x){return x.id===id});
+    if(c){c.items.push({t:v,done:false});save();render()}
+  }
+
   $('btnSave').addEventListener('click',function(){
     var obj;
     if(tab==='sops'){var t=$('s_title').value.trim();if(!t){alert('请填写 SOP 标题');return}obj={title:t,content:$('s_content').value,tag:$('s_tag').value.trim()}}
-    else{var c=$('l_content').value.trim();if(!c){alert('请填写内容');return}obj={date:$('l_date').value||today(),refSop:$('l_ref').value,content:c}}
+    else if(tab==='logs'){var c=$('l_content').value.trim();if(!c){alert('请填写内容');return}obj={date:$('l_date').value||today(),refSop:$('l_ref').value,content:c}}
+    else{var ct=$('c_title').value.trim();if(!ct){alert('请填写清单标题');return}var items=$('c_items').value.split('\n').map(function(s){return s.trim()}).filter(Boolean).map(function(t){return {t:t,done:false}});if(!items.length){alert('请至少填写一项');return}obj={title:ct,items:items}}
     if(editingId){data[tab]=data[tab].map(function(r){return r.id===editingId?Object.assign({},r,obj):r})}
     else{obj.id='w'+Date.now();obj.ts=Date.now();data[tab].push(obj)}
     save();closeModal();render();
